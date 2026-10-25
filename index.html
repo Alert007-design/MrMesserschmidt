@@ -143,10 +143,11 @@
       </div>
     </a>
 
-    <a class="kort x" href="https://x.com/mrmesserschmidt" target="_blank" rel="noopener">
-      <div class="billede"><svg class="stort-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 2.5h3.3l-7.2 8.2 8.5 10.8h-6.6l-5.2-6.6-5.9 6.6H1.4l7.7-8.8L1 2.5h6.8l4.7 6.1 5.3-6.1zm-1.2 17.1h1.8L7.1 4.3H5.1l11.5 15.3z"/></svg></div>
+    <a class="kort x" id="x" href="https://x.com/mrmesserschmidt" target="_blank" rel="noopener">
+      <div class="billede"><img alt=""><svg class="stort-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 2.5h3.3l-7.2 8.2 8.5 10.8h-6.6l-5.2-6.6-5.9 6.6H1.4l7.7-8.8L1 2.5h6.8l4.7 6.1 5.3-6.1zm-1.2 17.1h1.8L7.1 4.3H5.1l11.5 15.3z"/></svg></div>
       <div class="indhold">
         <div class="kanal"><span class="logo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 2.5h3.3l-7.2 8.2 8.5 10.8h-6.6l-5.2-6.6-5.9 6.6H1.4l7.7-8.8L1 2.5h6.8l4.7 6.1 5.3-6.1zm-1.2 17.1h1.8L7.1 4.3H5.1l11.5 15.3z"/></svg></span><strong>X</strong></div>
+        <div class="dato"></div>
         <p class="tekst">Korte kommentarer til dagens politik.</p>
         <span class="knap">Følg<span class="lang"> mig</span></span>
       </div>
@@ -197,6 +198,9 @@
       vis('facebook', d.facebook);
       vis('instagram', d.instagram);
       vis('youtube', d.youtube);
+    }).catch(function () {});
+    fetch('/api/x').then(function (r) { return r.ok ? r.json() : {}; }).then(function (d) {
+      vis('x', d.x);
     }).catch(function () {});
   })();
 </script>
