@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morten Messerschmidt · @mrmesserschmidt</title>
+<meta name="description" content="Følg Morten Messerschmidt på Facebook, Instagram, YouTube, X og Snapchat.">
+<meta property="og:title" content="Morten Messerschmidt · @mrmesserschmidt">
+<meta property="og:description" content="Følg mig på Facebook, Instagram, YouTube, X og Snapchat.">
+<meta property="og:image" content="/mig.webp">
+<link rel="icon" href="https://dfpriser.dk/mail/logo-lys.png">
+<style>
+  :root {
+    --bund: #c4dcf4;
+    --bund2: #e2f2fe;
+    --tekst: #14213d;
+    --daemp: #5b6680;
+    --roed: #c8102e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--bund2) 0%, var(--bund) 100%);
+    color: #0c3a86;
+    font: 16px/1.45 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 660px; margin: 0 auto; padding: 44px 16px 40px; }
+
+  header { text-align: center; margin-bottom: 28px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .haandtag { color: #4a6190; font-size: 16px; margin: 0; }
+
+  .gitter {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 34px;
+  }
+  .kort {
+    flex: 0 0 calc((100% - 68px) / 3);
+    display: flex; flex-direction: column;
+    text-decoration: none; color: var(--tekst);
+    background: #fff; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 6px 18px rgba(12,58,134,0.16);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .kort:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(12,58,134,0.24); }
+
+  .billede { position: relative; aspect-ratio: 1 / 1; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .billede img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+  .billede.har-billede img { display: block; }
+  .billede.har-billede .stort-logo { display: none; }
+  .stort-logo { width: 38%; height: 38%; color: #fff; }
+  .afspil {
+    position: absolute; inset: 0; margin: auto; width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center;
+  }
+  .billede.har-billede .afspil { display: flex; }
+  .afspil::after {
+    content: ""; border-style: solid; border-width: 8px 0 8px 14px;
+    border-color: transparent transparent transparent #fff; margin-left: 4px;
+  }
+
+  .indhold { padding: 10px 12px 12px; display: flex; flex-direction: column; flex: 1; }
+  .kanal { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+  .kanal .logo {
+    width: 22px; height: 22px; border-radius: 6px; flex: none;
+    display: inline-flex; align-items: center; justify-content: center; color: #fff;
+  }
+  .kanal .logo svg { width: 13px; height: 13px; }
+  .kanal strong { font-size: 14px; }
+  .dato { color: var(--daemp); font-size: 12px; margin: -2px 0 6px; min-height: 0; }
+  .dato:empty { display: none; }
+  .tekst {
+    margin: 0 0 10px; font-size: 13px; line-height: 1.4; color: var(--tekst);
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .knap { margin-top: auto; font-weight: 600; font-size: 13px; color: var(--roed); }
+  .knap::after { content: " →"; }
+
+  .fb .logo, .fb .billede { background: #1877f2; }
+  .ig .logo, .ig .billede { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
+  .yt .logo, .yt .billede { background: #ff0000; }
+  .x .logo, .x .billede { background: #000; }
+  .snap .logo, .snap .billede { background: #fffc00; }
+  .snap .logo, .snap .stort-logo { color: #000; }
+
+  @media (max-width: 560px) {
+    .gitter { gap: 20px; }
+    .kort { flex-basis: calc((100% - 40px) / 3); border-radius: 12px; }
+    .indhold { padding: 8px 8px 10px; }
+    .kanal { gap: 5px; margin-bottom: 4px; }
+    .kanal .logo { display: none; }
+    .kanal strong { font-size: 13px; }
+    .tekst { display: none; }
+    .knap { font-size: 12px; }
+    .knap .lang { display: none; }
+  }
+
+  footer { text-align: center; margin-top: 36px; }
+  .mig {
+    width: 124px; height: 124px; border-radius: 50%; object-fit: cover;
+    border: 4px solid #fff; box-shadow: 0 8px 22px rgba(12,58,134,0.22); display: block; margin: 0 auto;
+  }
+  .dfnavn { display: inline-block; margin-top: 24px; }
+  .dfnavn img { display: block; width: 240px; max-width: 70vw; height: auto; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Morten Messerschmidt</h1>
+    <p class="haandtag">@mrmesserschmidt</p>
+  </header>
+
+  <div class="gitter">
+    <a class="kort fb" id="facebook" href="https://www.facebook.com/MortenMesserschmidt" target="_blank" rel="noopener">
+      <div class="billede"><img alt=""><svg class="stort-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V6.8c0-.8.5-1 .9-1H17V2.2L14.1 2C10.9 2 10.3 4.4 10.3 6v2.5H8V12h2.3v10H14V12h2.7l.4-3.5H14z"/></svg></div>
+      <div class="indhold">
+        <div class="kanal"><span class="logo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V6.8c0-.8.5-1 .9-1H17V2.2L14.1 2C10.9 2 10.3 4.4 10.3 6v2.5H8V12h2.3v10H14V12h2.7l.4-3.5H14z"/></svg></span><strong>Facebook</strong></div>
+        <div class="dato"></div>
+        <p class="tekst">Nyheder, debat og politik fra hverdagen på Christiansborg.</p>
+        <span class="knap">Følg<span class="lang"> mig</span></span>
+      </div>
+    </a>
+
+    <a class="kort ig" id="instagram" href="https://www.instagram.com/mrmesserschmidt/" target="_blank" rel="noopener">
+      <div class="billede"><img alt=""><svg class="stort-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></div>
+      <div class="indhold">
+        <div class="kanal"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span><strong>Instagram</strong></div>
+        <div class="dato"></div>
+        <p class="tekst">Billeder og små glimt fra både arbejdet og fritiden.</p>
+        <span class="knap">Følg<span class="lang"> mig</span></span>
+      </div>
+    </a>
+
+    <a class="kort yt" id="youtube" href="https://www.youtube.com/@MrMesserschmidt" target="_blank" rel="noopener">
+      <div class="billede"><img alt=""><span class="afspil"></span><svg class="stort-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1c.4-1.6.5-4.8.5-4.8s0-3.2-.5-4.8zM9.7 15.1V8.9L15.5 12l-5.8 3.1z"/></svg></div>
+      <div class="indhold">
+        <div class="kanal"><span class="logo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1c.4-1.6.5-4.8.5-4.8s0-3.2-.5-4.8zM9.7 15.1V8.9L15.5 12l-5.8 3.1z"/></svg></span><strong>YouTube</strong></div>
+        <div class="dato"></div>
+        <p class="tekst">Taler, interviews og videoer.</p>
+        <span class="knap">Se<span class="lang"> videoerne</span></span>
+      </div>
+    </a>
+
+    <a class="kort x" href="https://x.com/mrmesserschmidt" target="_blank" rel="noopener">
+      <div class="billede"><svg class="stort-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 2.5h3.3l-7.2 8.2 8.5 10.8h-6.6l-5.2-6.6-5.9 6.6H1.4l7.7-8.8L1 2.5h6.8l4.7 6.1 5.3-6.1zm-1.2 17.1h1.8L7.1 4.3H5.1l11.5 15.3z"/></svg></div>
+      <div class="indhold">
+        <div class="kanal"><span class="logo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 2.5h3.3l-7.2 8.2 8.5 10.8h-6.6l-5.2-6.6-5.9 6.6H1.4l7.7-8.8L1 2.5h6.8l4.7 6.1 5.3-6.1zm-1.2 17.1h1.8L7.1 4.3H5.1l11.5 15.3z"/></svg></span><strong>X</strong></div>
+        <p class="tekst">Korte kommentarer til dagens politik.</p>
+        <span class="knap">Følg<span class="lang"> mig</span></span>
+      </div>
+    </a>
+
+    <a class="kort snap" href="https://www.snapchat.com/@mrmesserschmidt" target="_blank" rel="noopener">
+      <div class="billede"><svg class="stort-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.4 0 5.6 2.6 5.6 5.7v2.4c.5.2 1.3 0 1.8-.2.6-.2 1.1.5.6 1-.6.6-1.6.9-2.3 1.2.3 1.6 2 3.3 3.8 3.8.5.1.5.8 0 1-.8.4-1.9.5-2.4.7-.3.2-.2 1.1-.6 1.3-.5.2-1.5-.2-2.6.1-1.1.3-1.9 1.8-3.9 1.8s-2.8-1.5-3.9-1.8c-1.1-.3-2.1.1-2.6-.1-.4-.2-.3-1.1-.6-1.3-.5-.2-1.6-.3-2.4-.7-.5-.2-.5-.9 0-1 1.8-.5 3.5-2.2 3.8-3.8-.7-.3-1.7-.6-2.3-1.2-.5-.5 0-1.2.6-1 .5.2 1.3.4 1.8.2V7.9c0-3.1 2.2-5.7 5.6-5.7z"/></svg></div>
+      <div class="indhold">
+        <div class="kanal"><span class="logo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.4 0 5.6 2.6 5.6 5.7v2.4c.5.2 1.3 0 1.8-.2.6-.2 1.1.5.6 1-.6.6-1.6.9-2.3 1.2.3 1.6 2 3.3 3.8 3.8.5.1.5.8 0 1-.8.4-1.9.5-2.4.7-.3.2-.2 1.1-.6 1.3-.5.2-1.5-.2-2.6.1-1.1.3-1.9 1.8-3.9 1.8s-2.8-1.5-3.9-1.8c-1.1-.3-2.1.1-2.6-.1-.4-.2-.3-1.1-.6-1.3-.5-.2-1.6-.3-2.4-.7-.5-.2-.5-.9 0-1 1.8-.5 3.5-2.2 3.8-3.8-.7-.3-1.7-.6-2.3-1.2-.5-.5 0-1.2.6-1 .5.2 1.3.4 1.8.2V7.9c0-3.1 2.2-5.7 5.6-5.7z"/></svg></span><strong>Snapchat</strong></div>
+        <p class="tekst">Se min story.</p>
+        <span class="knap">Se<span class="lang"> min story</span></span>
+      </div>
+    </a>
+  </div>
+
+  <footer>
+    <img class="mig" src="/mig.webp" alt="Morten Messerschmidt">
+    <a class="dfnavn" href="https://danskfolkeparti.dk" target="_blank" rel="noopener"><img src="/df-navn.webp" alt="Dansk Folkeparti"></a>
+  </footer>
+</main>
+<script>
+  (function () {
+    var MDR = ['jan.', 'feb.', 'mar.', 'apr.', 'maj', 'jun.', 'jul.', 'aug.', 'sep.', 'okt.', 'nov.', 'dec.'];
+    function dato(iso) {
+      var d = new Date(iso);
+      if (isNaN(d)) return '';
+      var dage = Math.floor((Date.now() - d) / 86400000);
+      if (dage <= 0) return 'I dag';
+      if (dage === 1) return 'I går';
+      if (dage < 7) return 'For ' + dage + ' dage siden';
+      return d.getDate() + '. ' + MDR[d.getMonth()];
+    }
+    function vis(navn, o) {
+      if (!o) return;
+      var kort = document.getElementById(navn);
+      if (o.link) kort.href = o.link;
+      if (o.billede) {
+        var b = kort.querySelector('.billede');
+        var img = b.querySelector('img');
+        img.onload = function () { b.classList.add('har-billede'); };
+        img.src = o.billede;
+      }
+      if (o.tekst) kort.querySelector('.tekst').textContent = o.tekst;
+      if (o.dato) kort.querySelector('.dato').textContent = dato(o.dato);
+      kort.querySelector('.knap').innerHTML = navn === 'youtube' ? 'Se<span class="lang"> videoen</span>' : 'Se<span class="lang"> opslaget</span>';
+    }
+    fetch('/api/seneste').then(function (r) { return r.ok ? r.json() : {}; }).then(function (d) {
+      vis('facebook', d.facebook);
+      vis('instagram', d.instagram);
+      vis('youtube', d.youtube);
+    }).catch(function () {});
+  })();
+</script>
+</body>
+</html>
