@@ -25,7 +25,10 @@ function afkort(tekst, max = 140) {
 }
 
 async function seneste(token) {
-  const id = process.env.X_USER_ID || (await hent(`${API}/users/by/username/${BRUGER}`, token)).data.id;
+  // Profilen hentes for id'et og profilbilledet, som bruges, når opslaget ikke har et billede.
+  const bruger = (await hent(`${API}/users/by/username/${BRUGER}?user.fields=profile_image_url`, token)).data;
+  const id = bruger.id;
+  const profilbillede = bruger.profile_image_url ? bruger.profile_image_url.replace('_normal', '_400x400') : null;
   const url = `${API}/users/${id}/tweets?max_results=5&exclude=retweets,replies` +
     '&tweet.fields=created_at,attachments&expansions=attachments.media_keys&media.fields=url,preview_image_url,type';
   const svar = await hent(url, token);
@@ -36,7 +39,7 @@ async function seneste(token) {
   const medie = medier.find((m) => noegler.includes(m.media_key));
   return {
     tekst: afkort(opslag.text),
-    billede: medie ? medie.url || medie.preview_image_url || null : null,
+    billede: (medie && (medie.url || medie.preview_image_url)) || profilbillede,
     link: `https://x.com/${BRUGER}/status/${opslag.id}`,
     dato: opslag.created_at,
   };
