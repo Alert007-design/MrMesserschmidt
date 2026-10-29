@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /podcast/redaktion
+Disallow: /api/
+
+Sitemap: https://mrmesserschmidt.dk/sitemap.xml

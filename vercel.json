@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/podcast", "destination": "/api/podcast" },
+    { "source": "/podcast/redaktion", "destination": "/api/redaktion" },
+    { "source": "/podcast/:afsnit", "destination": "/api/podcast?afsnit=:afsnit" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+  ]
+}
