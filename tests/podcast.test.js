@@ -20,6 +20,12 @@ describe('afsnit fra Spreaker', () => {
     expect(b.emne).toBe('');
   });
 
+  it('finder gæsten i »Fik du hørt«-afsnit', () => {
+    const [a] = p.afsnitFraSpreaker({ response: { items: [{ episode_id: 7, title: 'Fik du hørt: Ulrich Thomsen', slug: 'fik-du-hort-ulrich-thomsen', published_at: '2026-09-10 22:00:00' }] } });
+    expect(a.gaest).toBe('Ulrich Thomsen');
+    expect(a.emne).toBe('Fik du hørt');
+  });
+
   it('giver tom liste ved tomt eller ødelagt svar', () => {
     expect(p.afsnitFraSpreaker(null)).toEqual([]);
     expect(p.afsnitFraSpreaker({})).toEqual([]);
