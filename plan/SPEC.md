@@ -1,6 +1,19 @@
 # Podcastsider og redaktøradgang – specifikation
 
-Status: udkast til Mortens godkendelse (29/10-2026). Der skrives ingen kode, før den er godkendt.
+Status: godkendt af Morten 29/10-2026 (Louisas mail, DNS-ok, cover modtaget).
+
+## Rettelser efter godkendelsen (fundet ved tjek af de rigtige data 29/10)
+- Spreaker har 152 afsnit, men ingen afsnitsnumre. Numrene på Apple (fx »154«) findes ikke i
+  data, så siderne viser dato og gæst, ikke nummer. Adresserne bliver /podcast/<titel-som-ord>,
+  fx /podcast/daniel-wass-stopper-mens-legen-er-god.
+- Billeder: YouTube-kanalen @IkkeEtOrdOmPolitik har et billede med gæsten til hvert afsnit, og
+  videobeskrivelsen begynder med gæstens navn. Siden kobler selv video og afsnit på gæstens
+  navn og bruger YouTube-billedet. YouTubes åbne feed viser kun de 15 nyeste videoer; ældre
+  afsnit kræver en YouTube-nøgle (kan tilføjes senere) eller et billede fra Louisa.
+  Rækkefølge: Louisas billede, ellers YouTube-billedet, ellers podcastens cover.
+- Grafik: podcastens egen stil – navy tekst i smal, fed skrift, cremefarvet bund, banner i
+  lyseblå som på YouTube-kanalen.
+- Beskrivelsen af podcasten tages fra podcastens egen tekst hos Spreaker.
 
 ## Formål
 Flere lyttere til »Ikke et ord om politik« via Google. Hvert afsnit får sin egen side på

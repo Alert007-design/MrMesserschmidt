@@ -1,0 +1,15 @@
+{
+  "name": "mrmesserschmidt",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "vitest run",
+    "lint": "node --check lib/podcast.js && node --check lib/login.js && node --check lib/side.js && node --check lib/billeder.js && for f in api/*.js; do node --check $f || exit 1; done"
+  },
+  "dependencies": {
+    "@vercel/blob": "^1.1.1"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

@@ -4,10 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Morten Messerschmidt · @mrmesserschmidt</title>
-<meta name="description" content="Følg Morten Messerschmidt på Facebook, Instagram, YouTube, X og Snapchat.">
+<meta name="description" content="Følg Morten Messerschmidt på Facebook, Instagram, YouTube, X og Snapchat, og hør podcasten Ikke et ord om politik.">
 <meta property="og:title" content="Morten Messerschmidt · @mrmesserschmidt">
 <meta property="og:description" content="Følg mig på Facebook, Instagram, YouTube, X og Snapchat.">
 <meta property="og:image" content="/mig.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap">
 <link rel="icon" href="https://dfpriser.dk/mail/logo-lys.png">
 <style>
   :root {
@@ -98,6 +101,23 @@
     .knap .lang { display: none; }
   }
 
+  .podcast {
+    display: flex; flex-direction: column; margin-top: 34px; text-decoration: none; color: var(--tekst);
+    background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 18px rgba(12,58,134,0.16);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .podcast:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(12,58,134,0.24); }
+  .podcast .banner {
+    background: #b7cade; color: #123a64; text-align: center; padding: 22px 12px 18px;
+    font-family: Oswald, "Arial Narrow", sans-serif; text-transform: uppercase; line-height: 1;
+  }
+  .podcast .banner b { display: block; font-weight: 700; font-size: clamp(26px, 7.4vw, 46px); }
+  .podcast .banner span { display: block; font-weight: 600; font-size: clamp(13px, 3.2vw, 18px); margin-top: 8px; }
+  .podcast .indhold { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .podcast .seneste { color: var(--daemp); font-size: 13px; margin: 2px 0 0; }
+  .podcast .seneste:empty { display: none; }
+  @media (max-width: 560px) { .podcast { margin-top: 20px; border-radius: 12px; } }
+
   footer { text-align: center; margin-top: 36px; }
   .mig {
     width: 124px; height: 124px; border-radius: 50%; object-fit: cover;
@@ -174,6 +194,17 @@
     </a>
   </div>
 
+  <a class="podcast" id="podcast" href="/podcast">
+    <div class="banner"><b>Ikke et ord om politik</b><span>Morten Messerschmidt</span></div>
+    <div class="indhold">
+      <div>
+        <div class="kanal"><strong>Podcast: Ikke et ord om politik</strong></div>
+        <p class="seneste"></p>
+      </div>
+      <span class="knap">Hør<span class="lang"> alle afsnit</span></span>
+    </div>
+  </a>
+
   <footer>
     <img class="mig" src="/mig.webp" alt="Morten Messerschmidt">
     <a class="dfnavn" href="https://danskfolkeparti.dk" target="_blank" rel="noopener"><img src="/df-navn.webp" alt="Dansk Folkeparti"></a>
@@ -212,6 +243,10 @@
     }).catch(function () {});
     fetch('/api/x').then(function (r) { return r.ok ? r.json() : {}; }).then(function (d) {
       vis('x', d.x);
+    }).catch(function () {});
+    fetch('/api/podcast?seneste=1').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || !d.gaest) return;
+      document.querySelector('#podcast .seneste').textContent = 'Nyeste: ' + d.gaest + (d.dato ? ' · ' + d.dato : '');
     }).catch(function () {});
   })();
 </script>
