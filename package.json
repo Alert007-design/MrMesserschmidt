@@ -1,13 +1,19 @@
 {
   "name": "mrmesserschmidt",
   "private": true,
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "vitest run",
-    "lint": "node --check lib/podcast.js && node --check lib/login.js && node --check lib/side.js && node --check lib/billeder.js && for f in api/*.js; do node --check $f || exit 1; done"
+    "lint": "for f in lib/*.js lib/facebook/*.js api/*.js; do node --check $f || exit 1; done"
   },
   "dependencies": {
-    "@vercel/blob": "^1.1.1"
+    "@fontsource/oswald": "^5.3.0",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@vercel/blob": "^1.1.1",
+    "satori": "^0.63.2"
   },
   "devDependencies": {
     "vitest": "^3.2.4"
