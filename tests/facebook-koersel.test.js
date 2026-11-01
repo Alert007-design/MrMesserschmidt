@@ -14,6 +14,7 @@ function falskMeta(fejl) {
     kald,
     async fotoOpslag(side, noegle, ind) { kald.push({ type: 'opslag', side, ...ind }); if (fejl) throw fejl; return { id: 'p1' }; },
     async story(side, noegle, billede) { kald.push({ type: 'story', side, billede }); if (fejl) throw fejl; return { id: 's1' }; },
+    async instagramStory(konto, noegle, billede) { kald.push({ type: 'igstory', konto, billede }); if (fejl) throw fejl; return { id: 'i1' }; },
   };
 }
 
@@ -27,8 +28,9 @@ function ind(over = {}) {
     meta: falskMeta(),
     cfg: {
       sider: { podcast: { id: 'POD', noegle: 'n1' }, politiker: { id: 'POL', noegle: 'n2' } },
+      instagram: { id: 'IG', noegle: 'n2' },
       mortensaftenFra: '2026-11-06',
-      billedUrl: (type, dato) => `https://mrmesserschmidt.dk/facebook/billede/${type}/${dato}.png`,
+      billedUrl: (type, dato, fmt = 'png') => `https://mrmesserschmidt.dk/facebook/billede/${type}/${dato}.${fmt}`,
     },
     ...over,
   };
@@ -119,6 +121,28 @@ describe('daglige stories', () => {
     const s = i.meta.kald.filter((x) => x.type === 'story');
     expect(s).toEqual([{ type: 'story', side: 'POL', billede: 'https://mrmesserschmidt.dk/facebook/billede/podcast/2026-11-02.png' }]);
     expect(i.status.stories['2026-11-02']).toMatchObject({ type: 'podcast', resultat: 'lagt' });
+  });
+
+  it('samme story går også på Instagram, som JPEG', async () => {
+    const i = ind({ nu: MANDAG_KL_9 });
+    await k.koer(i);
+    expect(i.meta.kald.filter((x) => x.type === 'igstory')).toEqual([{ type: 'igstory', konto: 'IG', billede: 'https://mrmesserschmidt.dk/facebook/billede/podcast/2026-11-02.jpg' }]);
+    expect(i.status.stories['2026-11-02'].instagram).toMatchObject({ resultat: 'lagt' });
+  });
+
+  it('uden Instagram-konto lægges kun på Facebook', async () => {
+    const i = ind({ nu: MANDAG_KL_9 });
+    i.cfg.instagram = { id: '', noegle: '' };
+    await k.koer(i);
+    expect(i.meta.kald.filter((x) => x.type === 'igstory')).toHaveLength(0);
+    expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'lagt', instagram: { resultat: 'ikke_opsat' } });
+  });
+
+  it('fejler Facebook, prøves Instagram stadig, og omvendt', async () => {
+    const i = ind({ nu: MANDAG_KL_9 });
+    i.meta.story = async () => { throw new MetaFejl('nej', 'rettighed'); };
+    await k.koer(i);
+    expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'fejl', instagram: { resultat: 'lagt' } });
   });
 
   it('aldrig to stories samme dag', async () => {

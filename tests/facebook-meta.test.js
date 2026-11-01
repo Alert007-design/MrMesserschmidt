@@ -62,3 +62,38 @@ describe('Meta-klienten', () => {
     expect((await k.story('9', '', 'u').catch((e) => e)).art).toBe('opsaetning');
   });
 });
+
+describe('Instagram-story', () => {
+  it('opretter en story-beholder, venter til den er klar og udgiver den', async () => {
+    const f = falskFetch([
+      { status: 200, body: { id: 'C1' } },
+      { status: 200, body: { status_code: 'IN_PROGRESS' } },
+      { status: 200, body: { status_code: 'FINISHED' } },
+      { status: 200, body: { id: 'IG9' } },
+    ]);
+    const k = m.opretMeta({ fetch: f, vent: async () => {} });
+    const r = await k.instagramStory('17841', NOEGLE, 'https://x/s.jpg');
+    expect(r.id).toBe('IG9');
+    expect(f.kald[0].url).toContain('/17841/media');
+    expect(f.kald[0].body).toContain('media_type=STORIES');
+    expect(f.kald[0].body).toContain('image_url=https%3A%2F%2Fx%2Fs.jpg');
+    expect(f.kald[1].url).toContain('/C1?fields=status_code');
+    expect(f.kald[1].url).not.toContain(NOEGLE);
+    expect(f.kald[3].url).toContain('/17841/media_publish');
+    expect(f.kald[3].body).toContain('creation_id=C1');
+  });
+
+  it('giver op, hvis Meta melder fejl på billedet', async () => {
+    const f = falskFetch([{ status: 200, body: { id: 'C1' } }, { status: 200, body: { status_code: 'ERROR' } }]);
+    const k = m.opretMeta({ fetch: f, vent: async () => {} });
+    const fejl = await k.instagramStory('17841', NOEGLE, 'u').catch((e) => e);
+    expect(fejl.art).toBe('afvist');
+    expect(f.kald).toHaveLength(2);
+  });
+
+  it('giver op efter nogle forsøg, hvis billedet aldrig bliver klar', async () => {
+    const svar = [{ status: 200, body: { id: 'C1' } }, ...Array.from({ length: 20 }, () => ({ status: 200, body: { status_code: 'IN_PROGRESS' } }))];
+    const k = m.opretMeta({ fetch: falskFetch(svar), vent: async () => {} });
+    expect((await k.instagramStory('17841', NOEGLE, 'u').catch((e) => e)).art).toBe('uvist');
+  });
+});

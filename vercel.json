@@ -17,6 +17,10 @@
       "destination": "/api/sitemap"
     },
     {
+      "source": "/facebook/billede/:type/:dato.jpg",
+      "destination": "/api/facebook-billede?type=:type&dato=:dato&format=jpg"
+    },
+    {
       "source": "/facebook/billede/:type/:dato.png",
       "destination": "/api/facebook-billede?type=:type&dato=:dato"
     },
