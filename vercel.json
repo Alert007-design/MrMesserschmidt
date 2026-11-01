@@ -1,8 +1,46 @@
 {
   "rewrites": [
-    { "source": "/podcast", "destination": "/api/podcast" },
-    { "source": "/podcast/redaktion", "destination": "/api/redaktion" },
-    { "source": "/podcast/:afsnit", "destination": "/api/podcast?afsnit=:afsnit" },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
-  ]
+    {
+      "source": "/podcast",
+      "destination": "/api/podcast"
+    },
+    {
+      "source": "/podcast/redaktion",
+      "destination": "/api/redaktion"
+    },
+    {
+      "source": "/podcast/:afsnit",
+      "destination": "/api/podcast?afsnit=:afsnit"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/facebook/billede/:type/:dato.png",
+      "destination": "/api/facebook-billede?type=:type&dato=:dato"
+    },
+    {
+      "source": "/facebook/kladde",
+      "destination": "/api/facebook-kladde"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/facebook",
+      "schedule": "5 * * * *"
+    }
+  ],
+  "functions": {
+    "api/facebook.js": {
+      "maxDuration": 60
+    },
+    "api/facebook-billede.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "api/facebook-kladde.js": {
+      "maxDuration": 30
+    }
+  }
 }
