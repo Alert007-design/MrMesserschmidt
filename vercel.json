@@ -37,7 +37,8 @@
     },
     "api/facebook-billede.js": {
       "maxDuration": 30,
-      "memory": 1024
+      "memory": 1024,
+      "includeFiles": "node_modules/@fontsource/**/files/*-latin-*.woff"
     },
     "api/facebook-kladde.js": {
       "maxDuration": 30
