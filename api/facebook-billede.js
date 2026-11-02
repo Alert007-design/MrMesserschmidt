@@ -20,11 +20,13 @@ module.exports = async (req, res) => {
       const a = (await hentAfsnitMedBilleder())[0];
       png = await tegn('podcast', { foto: await hentFoto(a.billede), gaest: a.gaest, emne: a.emne }, format);
     } else if (type === 'benzin') {
-      // Benzinpriser vises kun for i dag.
-      if (dato !== plan.kbh(nu).dato) return res.status(404).send('Kun dagens priser');
+      // Priserne er altid dagens. En kommende dag (op til en uge frem) vises som udkast med den dags foto.
+      const idag = plan.kbh(nu).dato;
+      const dage = (Date.parse(`${dato}T00:00:00Z`) - Date.parse(`${idag}T00:00:00Z`)) / 86400000;
+      if (dage < 0 || dage > 7) return res.status(404).send('Kun dagens priser');
       const tal = await hentBenzin(cfg, nu);
       if (!tal) return res.status(503).send('Ingen priser fra DFpriser');
-      png = await tegn('benzin', { benzin: tal.benzin, diesel: tal.diesel, dato }, format);
+      png = await tegn('benzin', { benzin: tal.benzin, diesel: tal.diesel, dato: idag, fotoDato: dato }, format);
     } else {
       const fil = plan.mortensaftenBillede(new Date(`${dato}T10:00:00Z`));
       png = await tegn('mortensaften', { foto: await hentFoto(`${cfg.mortensaftenUrl}/billeder/web/${fil}`) }, format);

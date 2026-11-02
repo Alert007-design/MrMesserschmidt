@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
     const gjort = status && status.stories && status.stories[dato];
     // Benzinpriser kendes først samme morgen. Andre dage vises et udkast med dagens priser.
     const benzinUdkast = type === 'benzin' && i > 0;
-    const billede = type ? cfg.billedUrl(type, benzinUdkast ? idag : dato) : '';
+    const billede = type ? cfg.billedUrl(type, dato) : '';
     const godkendt = type ? (live(type) ? '<span class="ok">Godkendt: lægges ud kl. 9</span>' : '<span class="kl">Ikke godkendt: kun kladde</span>') : '';
     uge.push(`<div class="kort"><b>${esc(datoTekst(dato))}</b><span>${type ? esc(NAVNE[type]) : 'Ingen story'}</span>${gjort ? `<span class="st">Facebook: ${esc(RESULTAT[gjort.resultat] || gjort.resultat)}${gjort.instagram ? `<br>Instagram: ${esc(RESULTAT[gjort.instagram.resultat] || gjort.instagram.resultat)}` : ''}</span>` : godkendt}${billede ? `<a href="${esc(billede)}"><img src="${esc(billede)}" alt="" loading="lazy"></a>` : ''}${benzinUdkast ? '<i>Udkast med dagens priser. Den dag bruges dagens tal.</i>' : ''}</div>`);
   }
