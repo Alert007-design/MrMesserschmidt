@@ -5,6 +5,8 @@ const { hentAlt, hentEnBeskrivelse, sikkert, danskDato } = require('../lib/podca
 const { egneBilleder } = require('../lib/billeder');
 const side = require('../lib/side');
 
+const { afsnitsBillede } = require('../lib/facebook/kilder');
+
 module.exports = async (req, res) => {
   const egne = await sikkert(egneBilleder, {});
   const data = await hentAlt(egne);
@@ -13,7 +15,7 @@ module.exports = async (req, res) => {
 
   if (q.seneste) {
     const a = data.afsnit[0];
-    return res.status(200).json(a ? { gaest: a.gaest, emne: a.emne, dato: danskDato(a.dato), link: `/podcast/${a.slug}` } : null);
+    return res.status(200).json(a ? { gaest: a.gaest, emne: a.emne, dato: danskDato(a.dato), link: `/podcast/${a.slug}`, billede: await afsnitsBillede(a) } : null);
   }
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
