@@ -1,7 +1,7 @@
 // Kørslen hver time (Vercel Cron): nyt podcastafsnit på podcastsiden og kl. 9 dagens story på politikersiden.
 // Slukket, så længe FACEBOOK_TILSTAND ikke er kladde eller live. Kun Vercel Cron (CRON_SECRET) kan starte den.
 
-const { miljoe, hentAfsnitMedBilleder, hentBenzin } = require('../lib/facebook/kilder');
+const { miljoe, hentAfsnitMedBilleder, hentBenzin, hentEl } = require('../lib/facebook/kilder');
 const { hentStatus, gemStatus } = require('../lib/facebook/status');
 const { opretMeta } = require('../lib/facebook/meta');
 const { koer } = require('../lib/facebook/koersel');
@@ -19,6 +19,7 @@ module.exports = async (req, res) => {
     status,
     hentAfsnit: hentAfsnitMedBilleder,
     hentBenzin: () => hentBenzin(cfg, nu),
+    hentEl: () => hentEl(cfg, nu),
     meta: opretMeta(),
     cfg,
   });

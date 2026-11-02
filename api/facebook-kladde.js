@@ -8,7 +8,7 @@ const plan = require('../lib/facebook/plan');
 const { esc } = require('../lib/podcast');
 const { datoTekst } = require('../lib/facebook/billede');
 
-const NAVNE = { podcast: 'Podcast', benzin: 'Benzinpriser', mortensaften: 'Mortens aften' };
+const NAVNE = { podcast: 'Podcast', benzin: 'Benzinpriser', el: 'Elpriser', mortensaften: 'Mortens aften' };
 const RESULTAT = {
   lagt: 'Lagt ud', kladde: 'Kladde (ikke lagt ud)', fejl: 'Fejlede', sprunget_over: 'Sprunget over', start: 'Startet', ikke_opsat: 'Ikke sat op',
 };
@@ -39,7 +39,7 @@ module.exports = async (req, res) => {
     const type = plan.storyType(d, cfg.mortensaftenFra);
     const gjort = status && status.stories && status.stories[dato];
     // Benzinpriser kendes først samme morgen. Andre dage vises et udkast med dagens priser.
-    const benzinUdkast = type === 'benzin' && i > 0;
+    const benzinUdkast = (type === 'benzin' || type === 'el') && i > 0;
     const billede = type ? cfg.billedUrl(type, dato) : '';
     const godkendt = type ? (live(type) ? '<span class="ok">Godkendt: lægges ud kl. 9</span>' : '<span class="kl">Ikke godkendt: kun kladde</span>') : '';
     uge.push(`<div class="kort"><b>${esc(datoTekst(dato))}</b><span>${type ? esc(NAVNE[type]) : 'Ingen story'}</span>${gjort ? `<span class="st">Facebook: ${esc(RESULTAT[gjort.resultat] || gjort.resultat)}${gjort.instagram ? `<br>Instagram: ${esc(RESULTAT[gjort.instagram.resultat] || gjort.instagram.resultat)}` : ''}</span>` : godkendt}${billede ? `<a href="${esc(billede)}"><img src="${esc(billede)}" alt="" loading="lazy"></a>` : ''}${benzinUdkast ? '<i>Udkast med dagens priser. Den dag bruges dagens tal.</i>' : ''}</div>`);
@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
 
   const log = ((status && status.log) || []).map((l) => `<tr><td>${esc(new Date(l.tid).toLocaleString('da-DK', { timeZone: 'Europe/Copenhagen' }))}</td><td>${esc(l.hvad === 'story' ? `Facebook-story: ${NAVNE[l.type] || l.type}` : l.hvad === 'instagramstory' ? `Instagram-story: ${NAVNE[l.type] || l.type}` : l.hvad === 'podcastopslag' ? `Opslag: ${l.afsnit || ''}` : l.hvad)}</td><td>${esc(RESULTAT[l.resultat] || l.resultat)}${l.besked ? `<br><small>${esc(l.besked)}</small>` : ''}</td></tr>`).join('');
 
-  const NAVN_SMAA = { podcast: 'podcast', benzin: 'benzinpriser', mortensaften: 'Mortens aften', instagram: 'Instagram' };
+  const NAVN_SMAA = { podcast: 'podcast', benzin: 'benzinpriser', el: 'elpriser', mortensaften: 'Mortens aften', instagram: 'Instagram' };
   const godkendteNavne = cfg.godkendt.map((t) => NAVN_SMAA[t]).join(', ');
   const tilstand = cfg.tilstand === 'kladde' && godkendteNavne
     ? `Godkendt og lægges ud: ${godkendteNavne}. Resten er kladde.`

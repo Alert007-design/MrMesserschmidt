@@ -24,9 +24,9 @@ describe('ugeplan for stories', () => {
     expect(p.storyType(kl('2026-11-04', 8), fra)).toBe('podcast');
     expect(p.storyType(kl('2026-11-06', 8), fra)).toBe('podcast');
   });
-  it('tirsdag og lørdag er benzin', () => {
+  it('tirsdag er benzin, lørdag elpriser', () => {
     expect(p.storyType(kl('2026-11-03', 8), fra)).toBe('benzin');
-    expect(p.storyType(kl('2026-11-07', 8), fra)).toBe('benzin');
+    expect(p.storyType(kl('2026-11-07', 8), fra)).toBe('el');
   });
   it('torsdag og søndag er Mortens aften, men først fra startdatoen', () => {
     expect(p.storyType(kl('2026-11-05', 8), fra)).toBe(null);
@@ -120,4 +120,33 @@ describe('Mortens aften skifter billede hver gang', () => {
     const b = dage.map((d) => p.mortensaftenBillede(kl(d, 8)));
     for (let i = 1; i < b.length; i++) expect(b[i]).not.toBe(b[i - 1]);
   });
+});
+
+describe('elpriser lørdag', () => {
+  it('lørdag er elpriser, tirsdag stadig benzin', () => {
+    expect(p.storyType(kl('2026-11-07', 8), '2026-11-06')).toBe('el');
+    expect(p.storyType(kl('2026-11-03', 8), '2026-11-06')).toBe('benzin');
+  });
+
+  it('tidsrum vises i dansk tid', () => {
+    expect(p.tidsrum('2026-11-07T12:00:00.000Z', '2026-11-07T15:00:00.000Z')).toBe('kl. 13–16');
+    expect(p.tidsrum('2026-11-07T20:00:00.000Z', '2026-11-07T23:00:00.000Z')).toBe('kl. 21–24');
+  });
+
+  it('kun dagens rigtige tal godtages', async () => {
+    const { elTal } = await import('../lib/facebook/kilder.js');
+    const b = { start: '2026-11-07T12:00:00Z', slut: '2026-11-07T15:00:00Z', gennemsnitOere: 41.2 };
+    const d = { dato: '2026-11-07', tilmeldingAaben: false, idag: { DK1: { billigste: b }, DK2: { billigste: b } } };
+    expect(elTal(d, '2026-11-07')).toMatchObject({ vest: b, oest: b, tilmeldingAaben: false });
+    expect(elTal(d, '2026-11-08')).toBeNull();
+    expect(elTal({ ...d, idag: { DK1: { billigste: null }, DK2: { billigste: b } } }, '2026-11-07')).toBeNull();
+    expect(elTal(null, '2026-11-07')).toBeNull();
+  });
+
+  it('el-storyen kan tegnes, også når tilmeldingen er lukket', async () => {
+    const { tegn } = await import('../lib/facebook/billede.js');
+    const b = { start: '2026-11-07T12:00:00Z', slut: '2026-11-07T15:00:00Z', gennemsnitOere: 41.2 };
+    const png = await tegn('el', { vest: b, oest: b, dato: '2026-11-07', tilmeldingAaben: false });
+    expect(png.length).toBeGreaterThan(10000);
+  }, 30000);
 });

@@ -265,3 +265,28 @@ describe('dagens kladde-story lægges op, når typen godkendes samme dag', () =>
     expect(i.meta.kald).toHaveLength(0);
   });
 });
+
+describe('elpris-story lørdag', () => {
+  const LOERDAG_KL_9 = new Date('2026-11-07T08:00:00Z');
+  it('uden elpriser springes lørdagen over', async () => {
+    const i = ind({ nu: LOERDAG_KL_9, hentEl: async () => null });
+    await k.koer(i);
+    expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(0);
+    expect(i.status.stories['2026-11-07']).toMatchObject({ type: 'el', resultat: 'sprunget_over' });
+  });
+
+  it('med elpriser og godkendt: el-storyen lægges ud', async () => {
+    const i = ind({ nu: LOERDAG_KL_9, tilstand: 'kladde', hentEl: async () => ({ vest: {}, oest: {} }) });
+    i.cfg = { ...i.cfg, godkendt: ['el'] };
+    await k.koer(i);
+    expect(i.meta.kald.find((x) => x.type === 'story').billede).toContain('/el/2026-11-07');
+  });
+
+  it('el er ikke godkendt: kun kladde', async () => {
+    const i = ind({ nu: LOERDAG_KL_9, tilstand: 'kladde', hentEl: async () => ({ vest: {}, oest: {} }) });
+    i.cfg = { ...i.cfg, godkendt: ['podcast'] };
+    await k.koer(i);
+    expect(i.meta.kald).toHaveLength(0);
+    expect(i.status.stories['2026-11-07']).toMatchObject({ type: 'el', resultat: 'kladde' });
+  });
+});
