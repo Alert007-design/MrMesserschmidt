@@ -106,3 +106,18 @@ describe('benzinfotos', () => {
     expect(tir).not.toBe(loer);
   });
 });
+
+describe('Mortens aften-billeder', () => {
+  it('flambering bruges ikke, og søndag 8. november er adventslysene', () => {
+    expect(p.MORTENSAFTEN_BILLEDER).not.toContain('flambering-koekken.jpg');
+    expect(p.mortensaftenBillede(kl('2026-11-08', 8))).toBe('adventslys.jpg');
+  });
+});
+
+describe('Mortens aften skifter billede hver gang', () => {
+  it('torsdag og søndag får aldrig samme billede i træk', () => {
+    const dage = ['2026-11-08', '2026-11-12', '2026-11-15', '2026-11-19', '2026-11-22', '2026-11-26'];
+    const b = dage.map((d) => p.mortensaftenBillede(kl(d, 8)));
+    for (let i = 1; i < b.length; i++) expect(b[i]).not.toBe(b[i - 1]);
+  });
+});
