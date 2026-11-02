@@ -81,7 +81,6 @@ describe('priser og billeder', () => {
     const b = p.mortensaftenBillede(kl('2026-11-15', 8));
     expect(a).toMatch(/^[a-z-]+\.jpg$/);
     expect(a).not.toBe(b);
-    expect(p.MORTENSAFTEN_BILLEDER.join(' ')).not.toMatch(/dot/);
   });
 });
 
@@ -108,9 +107,10 @@ describe('benzinfotos', () => {
 });
 
 describe('Mortens aften-billeder', () => {
-  it('flambering bruges ikke, og søndag 8. november er adventslysene', () => {
+  it('kun billeder med andre, og søndag 8. november er middagen med levende lys', () => {
     expect(p.MORTENSAFTEN_BILLEDER).not.toContain('flambering-koekken.jpg');
-    expect(p.mortensaftenBillede(kl('2026-11-08', 8))).toBe('adventslys.jpg');
+    expect(p.MORTENSAFTEN_BILLEDER).not.toContain('adventslys.jpg');
+    expect(p.mortensaftenBillede(kl('2026-11-08', 8))).toBe('middag-med-dot-lys.jpg');
   });
 });
 
