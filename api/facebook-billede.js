@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
       png = await tegn('benzin', { benzin: tal.benzin, diesel: tal.diesel, dato: idag, fotoDato: dato }, format);
     } else {
       const fil = plan.mortensaftenBillede(new Date(`${dato}T10:00:00Z`));
-      png = await tegn('mortensaften', { foto: await hentFoto(`${cfg.mortensaftenUrl}/billeder/web/${fil}`) }, format);
+      png = await tegn('mortensaften', { foto: await hentFoto(`${cfg.mortensaftenUrl}/billeder/web/${fil}`), liggende: plan.LIGGENDE.includes(fil) }, format);
     }
     res.setHeader('Content-Type', format === 'jpg' ? 'image/jpeg' : 'image/png');
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=600');
