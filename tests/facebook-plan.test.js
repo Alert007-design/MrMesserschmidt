@@ -84,3 +84,15 @@ describe('priser og billeder', () => {
     expect(p.MORTENSAFTEN_BILLEDER.join(' ')).not.toMatch(/dot/);
   });
 });
+
+describe('godkendte typer fra Vercel', () => {
+  it('læser en kommasepareret liste og ignorerer ukendte ord', async () => {
+    const { godkendte } = await import('../lib/facebook/kilder.js');
+    expect(godkendte(' Podcast, benzin ,fisk,')).toEqual(['podcast', 'benzin']);
+    expect(godkendte('')).toEqual([]);
+  });
+
+  it('billedet, Morten har fjernet fra mortensaften.dk, bruges ikke', () => {
+    expect(p.MORTENSAFTEN_BILLEDER).not.toContain('hat-hund-terrasse.jpg');
+  });
+});

@@ -1,3 +1,3 @@
-Færdigt: opgave 1-8 (kode, tests, billeder, kladdeside); DFpriser-adressen ligger som pull request.
-I gang: opgave 10 – miljøvariabler i Vercel og fletning.
-Mangler: Meta-nøgler fra Morten, kladdeperiode, derefter live efter Mortens ja.
+Færdigt: opgave 1-10; godkendelse pr. type (FACEBOOK_GODKENDT) bygget 2/11-2026, podcast godkendt af Morten.
+I gang: fletning og FACEBOOK_GODKENDT=podcast i Vercel.
+Mangler: Mortens godkendelse af benzinpriser (udkast på kladdesiden) og Mortens aften; Instagram venter.

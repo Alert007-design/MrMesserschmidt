@@ -188,3 +188,50 @@ describe('daglige stories', () => {
     expect(i.status.log.length).toBeLessThanOrEqual(k.MAKS_LOG);
   });
 });
+
+describe('godkendelse pr. type', () => {
+  const medGodkendt = (godkendt, over = {}) => {
+    const i = ind({ tilstand: 'kladde', ...over });
+    i.cfg = { ...i.cfg, godkendt };
+    return i;
+  };
+
+  it('godkendt podcast: storyen lægges ud på Facebook, men ikke på Instagram', async () => {
+    const i = medGodkendt(['podcast'], { nu: MANDAG_KL_9 });
+    await k.koer(i);
+    expect(i.meta.kald.map((x) => x.type)).toEqual(['story']);
+    expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'lagt', instagram: { resultat: 'kladde' } });
+  });
+
+  it('godkendt podcast: opslag om nyt afsnit lægges ud', async () => {
+    const i = medGodkendt(['podcast'], { hentAfsnit: async () => [afsnit(2), afsnit(1)] });
+    await k.koer(i);
+    expect(i.meta.kald).toEqual([expect.objectContaining({ type: 'opslag', side: 'POD' })]);
+  });
+
+  it('benzin er ikke godkendt: tirsdagens story bliver kladde', async () => {
+    const i = medGodkendt(['podcast'], { nu: TIRSDAG_KL_9 });
+    await k.koer(i);
+    expect(i.meta.kald).toHaveLength(0);
+    expect(i.status.stories['2026-11-03']).toMatchObject({ type: 'benzin', resultat: 'kladde' });
+  });
+
+  it('Mortens aften er ikke godkendt: søndagens story bliver kladde', async () => {
+    const i = medGodkendt(['podcast'], { nu: new Date('2026-11-08T08:00:00Z') });
+    await k.koer(i);
+    expect(i.meta.kald).toHaveLength(0);
+    expect(i.status.stories['2026-11-08']).toMatchObject({ type: 'mortensaften', resultat: 'kladde' });
+  });
+
+  it('slukket slår også godkendte typer fra', async () => {
+    const i = medGodkendt(['podcast'], { tilstand: 'fra', nu: MANDAG_KL_9 });
+    await k.koer(i);
+    expect(i.meta.kald).toHaveLength(0);
+  });
+
+  it('instagram godkendt sammen med podcast: begge får storyen', async () => {
+    const i = medGodkendt(['podcast', 'instagram'], { nu: MANDAG_KL_9 });
+    await k.koer(i);
+    expect(i.meta.kald.map((x) => x.type)).toEqual(['story', 'igstory']);
+  });
+});
