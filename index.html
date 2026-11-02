@@ -113,6 +113,8 @@
   }
   .podcast .banner b { display: block; font-weight: 700; font-size: clamp(26px, 7.4vw, 46px); }
   .podcast .banner span { display: block; font-weight: 600; font-size: clamp(13px, 3.2vw, 18px); margin-top: 8px; }
+  .podcast .gaest { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 420px; object-fit: cover; background: #1D3557; }
+  .podcast .gaest[hidden] { display: none; }
   .podcast .indhold { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 12px; }
   .podcast .seneste { color: var(--daemp); font-size: 13px; margin: 2px 0 0; }
   .podcast .seneste:empty { display: none; }
@@ -196,6 +198,7 @@
 
   <a class="podcast" id="podcast" href="/podcast">
     <div class="banner"><b>Ikke et ord om politik</b><span>Morten Messerschmidt</span></div>
+    <img class="gaest" alt="" hidden>
     <div class="indhold">
       <div>
         <div class="kanal"><strong>Podcast: Ikke et ord om politik</strong></div>
@@ -247,6 +250,12 @@
     fetch('/api/podcast?seneste=1').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
       if (!d || !d.gaest) return;
       document.querySelector('#podcast .seneste').textContent = 'Nyeste: ' + d.gaest + (d.dato ? ' · ' + d.dato : '');
+      if (d.billede) {
+        var img = document.querySelector('#podcast .gaest');
+        img.onload = function () { img.hidden = false; };
+        img.alt = d.gaest;
+        img.src = d.billede;
+      }
     }).catch(function () {});
   })();
 </script>
