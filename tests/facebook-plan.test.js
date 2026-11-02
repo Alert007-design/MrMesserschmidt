@@ -96,3 +96,13 @@ describe('godkendte typer fra Vercel', () => {
     expect(p.MORTENSAFTEN_BILLEDER).not.toContain('hat-hund-terrasse.jpg');
   });
 });
+
+describe('benzinfotos', () => {
+  it('tirsdag og lørdag har hver sit foto', async () => {
+    const { benzinFoto } = await import('../lib/facebook/billede.js');
+    const tir = benzinFoto('2026-11-03'), loer = benzinFoto('2026-11-07');
+    expect(tir).toMatch(/^data:image\/jpeg;base64,/);
+    expect(loer).toMatch(/^data:image\/jpeg;base64,/);
+    expect(tir).not.toBe(loer);
+  });
+});

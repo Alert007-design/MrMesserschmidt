@@ -235,3 +235,33 @@ describe('godkendelse pr. type', () => {
     expect(i.meta.kald.map((x) => x.type)).toEqual(['story', 'igstory']);
   });
 });
+
+describe('dagens kladde-story lægges op, når typen godkendes samme dag', () => {
+  const kladdeIDag = (over = {}) => {
+    const i = ind({ tilstand: 'kladde', ...over });
+    i.cfg = { ...i.cfg, godkendt: ['podcast'] };
+    i.status.stories = { '2026-11-02': { type: 'podcast', resultat: 'kladde' } };
+    return i;
+  };
+
+  it('kl. 10 lægges dagens podcast-story op, og kun én gang', async () => {
+    const i = kladdeIDag({ nu: MANDAG_KL_10 });
+    await k.koer(i);
+    await k.koer(i);
+    expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(1);
+    expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'lagt' });
+  });
+
+  it('efter kl. 20 lægges intet op', async () => {
+    const i = kladdeIDag({ nu: new Date('2026-11-02T20:00:00Z') });
+    await k.koer(i);
+    expect(i.meta.kald).toHaveLength(0);
+  });
+
+  it('en ikke-godkendt type indhentes ikke', async () => {
+    const i = kladdeIDag({ nu: MANDAG_KL_10 });
+    i.cfg.godkendt = [];
+    await k.koer(i);
+    expect(i.meta.kald).toHaveLength(0);
+  });
+});
