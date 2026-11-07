@@ -150,3 +150,23 @@ describe('elpriser lørdag', () => {
     expect(png.length).toBeGreaterThan(10000);
   }, 30000);
 });
+
+describe('Mortens aften tirsdag 10. november', () => {
+  const fra = '2026-11-06';
+  it('storyen den 10. november er Mortens aften i stedet for benzinpriser', () => {
+    expect(p.storyType(kl('2026-11-10', 8), fra)).toBe('mortensaften');
+  });
+  it('andre tirsdage er stadig benzinpriser', () => {
+    expect(p.storyType(kl('2026-11-03', 8), fra)).toBe('benzin');
+    expect(p.storyType(kl('2026-11-17', 8), fra)).toBe('benzin');
+  });
+  it('billedet den 10. er et andet end søndag den 8. og torsdag den 12.', () => {
+    const b = (d) => p.mortensaftenBillede(kl(d, 8));
+    expect(b('2026-11-10')).toBe('skaal-med-dot.jpg');
+    expect(b('2026-11-10')).not.toBe(b('2026-11-08'));
+    expect(b('2026-11-10')).not.toBe(b('2026-11-12'));
+  });
+  it('Mortens aften-dagen respekterer stadig startdatoen', () => {
+    expect(p.storyType(kl('2026-11-10', 8), '2026-11-20')).toBe(null);
+  });
+});
