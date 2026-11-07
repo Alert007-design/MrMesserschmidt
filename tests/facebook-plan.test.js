@@ -170,3 +170,18 @@ describe('Mortens aften tirsdag 10. november', () => {
     expect(p.storyType(kl('2026-11-10', 8), '2026-11-20')).toBe(null);
   });
 });
+
+describe('flere Mortens aften-billeder (7/11-2026)', () => {
+  it('syv billeder, alle med andre, inklusive madlavningen udendørs og aftenen ved bordet', () => {
+    expect(p.MORTENSAFTEN_BILLEDER).toHaveLength(7);
+    expect(p.MORTENSAFTEN_BILLEDER).toContain('madlavning-udendoers.jpg');
+    expect(p.MORTENSAFTEN_BILLEDER).toContain('tv-koekken-aften.jpg');
+    expect(p.LIGGENDE).toContain('madlavning-udendoers.jpg');
+    expect(p.LIGGENDE).toContain('tv-koekken-aften.jpg');
+  });
+  it('intet billede gentages inden for syv Mortens aften-stories i træk', () => {
+    const dage = ['2026-11-08', '2026-11-10', '2026-11-12', '2026-11-15', '2026-11-19', '2026-11-22', '2026-11-26'];
+    const b = dage.map((d) => p.mortensaftenBillede(kl(d, 8)));
+    expect(new Set(b).size).toBe(b.length);
+  });
+});
