@@ -120,6 +120,10 @@
   .podcast .seneste:empty { display: none; }
   @media (max-width: 560px) { .podcast { margin-top: 20px; border-radius: 12px; } }
 
+  .mortensaften { margin-top: 18px; }
+  .mortensaften .forside { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: cover; flex: none; background: #2a0e0a; }
+  .mortensaften .knap { color: #c4581f; }
+
   footer { text-align: center; margin-top: 36px; }
   .mig {
     width: 124px; height: 124px; border-radius: 50%; object-fit: cover;
@@ -206,6 +210,17 @@
         <p class="seneste"></p>
       </div>
       <span class="knap">Hør<span class="lang"> alle afsnit</span></span>
+    </div>
+  </a>
+
+  <a class="podcast mortensaften" id="mortensaften" href="https://mortensaften.dk" target="_blank" rel="noopener">
+    <img class="forside" src="/mortensaften.webp" alt="Mortens aften – hver uge" width="1200" height="600" loading="lazy">
+    <div class="indhold">
+      <div>
+        <div class="kanal"><strong>Mortens aften – mit ugebrev</strong></div>
+        <p class="seneste">Opskrift, vin og lidt fra min hverdag. Hver torsdag.</p>
+      </div>
+      <span class="knap">Tilmeld<span class="lang"> dig gratis</span></span>
     </div>
   </a>
 
