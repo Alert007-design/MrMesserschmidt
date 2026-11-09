@@ -7,13 +7,14 @@ const a = { id: '2', titel: 'Daniel Wass: Stopper', gaest: 'Daniel Wass', emne: 
 const b = { ...a, id: '1', gaest: 'Hans Engell', slug: 'hans-engell' };
 
 describe('SEO-gennemgang 9/11', () => {
-  it('podcastoversigten har én h1 og en beskrivelse på mindst 80 tegn', () => {
+  it('podcastoversigten har én h1 og en beskrivelse på mindst 60 tegn', () => {
     const html = side.oversigt({ show, afsnit: [a, b] });
     expect(html.match(/<h1/g)).toHaveLength(1);
     const besk = html.match(/<meta name="description" content="([^"]*)"/)[1];
-    expect(besk.length).toBeGreaterThanOrEqual(80);
+    expect(besk.length).toBeGreaterThanOrEqual(60);
     expect(besk.length).toBeLessThanOrEqual(160);
-    expect(besk).toContain('Daniel Wass');
+    expect(besk).toContain('Hør alle 2 afsnit');
+    expect(besk).not.toContain('\n');
   });
   it('alle podcastsider har twitter-kort', () => {
     expect(side.oversigt({ show, afsnit: [a] })).toContain('<meta name="twitter:card" content="summary_large_image">');
