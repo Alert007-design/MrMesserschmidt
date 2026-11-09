@@ -124,6 +124,12 @@
   .mortensaften .forside { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: cover; flex: none; background: #2a0e0a; }
   .mortensaften .knap { color: #c4581f; }
 
+  .bog { margin-top: 18px; flex-direction: row; }
+  .bog .omslag { display: block; width: 132px; height: auto; aspect-ratio: 2 / 3; object-fit: cover; flex: none; background: #fff; }
+  .bog .indhold { flex: 1 1 auto; align-self: center; }
+  .bog .knap { white-space: nowrap; }
+  @media (max-width: 560px) { .bog .omslag { width: 96px; } }
+
   footer { text-align: center; margin-top: 36px; }
   .mig {
     width: 124px; height: 124px; border-radius: 50%; object-fit: cover;
@@ -221,6 +227,17 @@
         <p class="seneste">Opskrift, vin og lidt fra min hverdag. Hver torsdag.</p>
       </div>
       <span class="knap">Tilmeld<span class="lang"> dig gratis</span></span>
+    </div>
+  </a>
+
+  <a class="podcast bog" id="bog" href="https://www.dfbutikken.dk/vare/336680/" target="_blank" rel="noopener">
+    <img class="omslag" src="https://www.dfbutikken.dk/wp-content/uploads/2026/03/Dansk-Foraar.png" alt="Bogen Dansk forår af Morten Messerschmidt" width="400" height="600" loading="lazy" onerror="this.remove()">
+    <div class="indhold">
+      <div>
+        <div class="kanal"><strong>Dansk forår – min bog</strong></div>
+        <p class="seneste">Historien bag om Dansk Folkeparti i en turbulent tid. Og om at finde tilbage til de værdier, man holder af.</p>
+      </div>
+      <span class="knap">Køb<span class="lang"> bogen</span></span>
     </div>
   </a>
 
