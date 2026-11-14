@@ -40,10 +40,11 @@ describe('tidspunkter', () => {
   it('ikke om natten', () => {
     expect(s.erNuTid(new Date('2026-11-15T02:00:00Z'), { start: '2026-11-15T02:00:00Z', slut: '2026-11-15T05:00:00Z' })).toBe(false);
   });
-  it('ugens story: søndag kl. 19 Vest, onsdag kl. 19 Øst, ellers ingen', () => {
-    expect(s.ugeOmraade(new Date('2026-11-15T18:00:00Z'))).toBe('DK1');
-    expect(s.ugeOmraade(new Date('2026-11-18T18:15:00Z'))).toBe('DK2');
-    expect(s.ugeOmraade(new Date('2026-11-15T17:45:00Z'))).toBeNull();
+  it('ugens story: søndag kl. 20 Vest, onsdag kl. 20 Øst, ellers ingen (flyttet fra kl. 19 15/11-2026)', () => {
+    expect(s.ugeOmraade(new Date('2026-11-15T19:00:00Z'))).toBe('DK1');
+    expect(s.ugeOmraade(new Date('2026-11-18T19:15:00Z'))).toBe('DK2');
+    expect(s.ugeOmraade(new Date('2026-11-15T18:00:00Z'))).toBeNull();
+    expect(s.ugeOmraade(new Date('2026-11-15T18:45:00Z'))).toBeNull();
     expect(s.ugeOmraade(new Date('2026-11-16T18:00:00Z'))).toBeNull();
   });
   it('kroner med komma', () => {
@@ -71,15 +72,15 @@ describe('kørslen', () => {
     const i = ind('2026-11-15T10:30:00Z', { tilstand: 'fra' });
     expect(await s.koerElStories(i)).toEqual({ tilstand: 'fra' });
   });
-  it('ugens story søndag kl. 19 med Vestdanmarks tal', async () => {
-    const i = ind('2026-11-15T18:00:00Z');
+  it('ugens story søndag kl. 20 med Vestdanmarks tal', async () => {
+    const i = ind('2026-11-15T19:00:00Z');
     const r = await s.koerElStories(i);
     expect(r.uge.resultat).toBe('lagt');
     expect(r.uge.omraade).toBe('DK1');
     expect(i.meta.kald[0].billede).toBe('https://mrmesserschmidt.dk/facebook/billede/el-uge/2026-11-15.png');
   });
   it('springer ugens story over uden tal', async () => {
-    const i = ind('2026-11-15T18:00:00Z', { hentEl: async () => data({ uge: { DK1: { dage: 3, gnsForskelOere: null }, DK2: { dage: 3, gnsForskelOere: null } } }) });
+    const i = ind('2026-11-15T19:00:00Z', { hentEl: async () => data({ uge: { DK1: { dage: 3, gnsForskelOere: null }, DK2: { dage: 3, gnsForskelOere: null } } }) });
     const r = await s.koerElStories(i);
     expect(r.uge.resultat).toBe('sprunget_over');
     expect(i.meta.kald).toEqual([]);

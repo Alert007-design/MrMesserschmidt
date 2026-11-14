@@ -9,7 +9,7 @@ const plan = require('../lib/facebook/plan');
 const { esc } = require('../lib/podcast');
 const { datoTekst } = require('../lib/facebook/billede');
 
-const NAVNE = { podcast: 'Podcast', benzin: 'Benzinpriser', el: 'Elpriser', mortensaften: 'Mortens aften', 'el-nu': 'El: Nu er det nu', 'el-uge': 'El: Den seneste uge' };
+const NAVNE = { podcast: 'Podcast', benzin: 'Benzinpriser', el: 'Elpriser', mortensaften: 'Mortens aften', 'el-nu': 'El: Nu er det nu', 'el-uge': 'El: Den seneste uge', 'to-kroner': '2 kr. billigere fra i dag' };
 const RESULTAT = {
   lagt: 'Lagt ud', kladde: 'Kladde (ikke lagt ud)', fejl: 'Fejlede', sprunget_over: 'Sprunget over', start: 'Startet', ikke_opsat: 'Ikke sat op',
 };
@@ -35,17 +35,38 @@ module.exports = async (req, res) => {
   const idag = plan.kbh(nu).dato;
   const live = (type) => cfg.tilstand === 'live' || cfg.godkendt.includes(type);
   const uge = [];
+  const ud = (g) => `<span class="st">Facebook: ${esc(RESULTAT[g.resultat] || g.resultat)}${g.instagram ? `<br>Instagram: ${esc(RESULTAT[g.instagram.resultat] || g.instagram.resultat)}` : ''}</span>`;
   for (let i = 0; i < 7; i++) {
     const d = new Date(nu.getTime() + i * 86400000);
     const { dato } = plan.kbh(d);
-    const type = plan.storyType(d, cfg.mortensaftenFra);
-    const gjort = status && status.stories && status.stories[dato];
-    // Benzinpriser kendes først samme morgen. Andre dage vises et udkast med dagens priser.
-    const benzinUdkast = (type === 'benzin' || type === 'el') && i > 0;
-    const billede = type ? cfg.billedUrl(type, dato) : '';
-    const godkendt = type ? (live(type) ? '<span class="ok">Godkendt: lægges ud kl. 9</span>' : '<span class="kl">Ikke godkendt: kun kladde</span>') : '';
-    uge.push(`<div class="kort"><b>${esc(datoTekst(dato))}</b><span>${type ? esc(NAVNE[type]) : 'Ingen story'}</span>${gjort ? `<span class="st">Facebook: ${esc(RESULTAT[gjort.resultat] || gjort.resultat)}${gjort.instagram ? `<br>Instagram: ${esc(RESULTAT[gjort.instagram.resultat] || gjort.instagram.resultat)}` : ''}</span>` : godkendt}${billede ? `<a href="${esc(billede)}"><img src="${esc(billede)}" alt="" loading="lazy"></a>` : ''}${benzinUdkast ? '<i>Udkast med dagens priser. Den dag bruges dagens tal.</i>' : ''}</div>`);
+    for (const slot of ['morgen', 'aften']) {
+      let type = plan.storyType(d, cfg.mortensaftenFra, slot);
+      let note = '';
+      if (type === 'to-kroner' && !cfg.godkendt.includes('to-kroner')) {
+        type = plan.reserveType(d);
+        note = '<i>2-kroners-storyen er ikke godkendt endnu, så dagens almindelige story kommer i stedet.</i>';
+      }
+      const n = slot === 'morgen' ? dato : `${dato}:aften`;
+      const gjort = status && status.stories && status.stories[n];
+      const udkastPriser = (type === 'benzin' || type === 'el') && i > 0;
+      const billede = type ? cfg.billedUrl(type, dato) : '';
+      const kl = `kl. ${plan.TIDER[slot]}`;
+      const godkendt = type ? ((type === 'to-kroner' ? cfg.godkendt.includes(type) : live(type)) ? `<span class="ok">Godkendt: lægges ud ${kl}</span>` : '<span class="kl">Ikke godkendt: kun kladde</span>') : '';
+      uge.push(`<div class="kort"><b>${esc(datoTekst(dato))} ${kl}</b><span>${type ? esc(NAVNE[type]) : 'Ingen story'}</span>${gjort ? ud(gjort) : godkendt}${note}${billede ? `<a href="${esc(billede)}"><img src="${esc(billede)}" alt="" loading="lazy"></a>` : ''}${udkastPriser ? '<i>Udkast med dagens priser. Den dag bruges dagens tal.</i>' : ''}</div>`);
+    }
   }
+
+  // Nye formater til godkendelse (Morten 14/11-2026). De vises her som udkast, uanset om de er godkendt.
+  const nyeNavne = { nedtaelling: 'Nedtælling til 1. december (benzin og el kl. 9)', jul: 'Julepynt i december (alle faste stories)', 'to-kroner': '1. december kl. 9: 2 kr. billigere fra i dag' };
+  const morgen = new Date(nu.getTime() + 86400000);
+  const imorgen = plan.kbh(morgen).dato;
+  const udkastUrl = (type, dato) => `${cfg.billedUrl(type, dato)}?udkast=1`;
+  const nyeEksempler = {
+    nedtaelling: [udkastUrl('benzin', imorgen), udkastUrl('el', imorgen)],
+    jul: [udkastUrl('benzin', '2026-12-02'), udkastUrl('el', '2026-12-03'), udkastUrl('podcast', '2026-12-07'), udkastUrl('mortensaften', '2026-12-08')],
+    'to-kroner': [udkastUrl('to-kroner', plan.TO_KRONER_DATO)],
+  };
+  const nye = Object.keys(nyeNavne).map((k) => `<div class="kort bred"><b>${esc(nyeNavne[k])}</b>${cfg.godkendt.includes(k) ? '<span class="ok">Godkendt</span>' : '<span class="kl">Venter på din godkendelse</span>'}<div class="raekke">${nyeEksempler[k].map((u) => `<a href="${esc(u)}"><img src="${esc(u)}" alt="" loading="lazy"></a>`).join('')}</div></div>`).join('');
 
   // El-stories (Morten 14/11-2026): i dag »Nu er det nu« og de næste to ugestories.
   const elKort = [];
@@ -59,7 +80,7 @@ module.exports = async (req, res) => {
     const omr = elStories.UGE_DAGE[ugedag];
     if (!omr) continue;
     const b = cfg.billedUrl('el-uge', dato);
-    elKort.push(`<div class="kort"><b>${esc(datoTekst(dato))} kl. 19</b><span>${esc(NAVNE['el-uge'])}: ${esc(elStories.NAVN[omr])}</span>${elUd(elGjort[`${dato}:el-uge`]) || elGodkendt('el-uge')}<a href="${esc(b)}"><img src="${esc(b)}" alt="" loading="lazy"></a>${i > 0 ? '<i>Udkast med dagens tal. Den dag bruges den uges tal.</i>' : ''}</div>`);
+    elKort.push(`<div class="kort"><b>${esc(datoTekst(dato))} kl. 20</b><span>${esc(NAVNE['el-uge'])}: ${esc(elStories.NAVN[omr])}</span>${elUd(elGjort[`${dato}:el-uge`]) || elGodkendt('el-uge')}<a href="${esc(b)}"><img src="${esc(b)}" alt="" loading="lazy"></a>${i > 0 ? '<i>Udkast med dagens tal. Den dag bruges den uges tal.</i>' : ''}</div>`);
   }
 
   const a = afsnit[0];
@@ -67,7 +88,7 @@ module.exports = async (req, res) => {
 
   const log = [...((status && status.log) || []), ...((elStatus && elStatus.log) || [])].sort((x, y) => String(y.tid).localeCompare(String(x.tid))).slice(0, 80).map((l) => `<tr><td>${esc(new Date(l.tid).toLocaleString('da-DK', { timeZone: 'Europe/Copenhagen' }))}</td><td>${esc(l.hvad === 'story' ? `Facebook-story: ${NAVNE[l.type] || l.type}` : l.hvad === 'instagramstory' ? `Instagram-story: ${NAVNE[l.type] || l.type}` : l.hvad === 'podcastopslag' ? `Opslag: ${l.afsnit || ''}` : l.hvad)}</td><td>${esc(RESULTAT[l.resultat] || l.resultat)}${l.besked ? `<br><small>${esc(l.besked)}</small>` : ''}</td></tr>`).join('');
 
-  const NAVN_SMAA = { podcast: 'podcast', benzin: 'benzinpriser', el: 'elpriser', mortensaften: 'Mortens aften', instagram: 'Instagram', 'el-nu': 'el: nu er det nu', 'el-uge': 'el: den seneste uge' };
+  const NAVN_SMAA = { podcast: 'podcast', benzin: 'benzinpriser', el: 'elpriser', mortensaften: 'Mortens aften', instagram: 'Instagram', 'el-nu': 'el: nu er det nu', 'el-uge': 'el: den seneste uge', nedtaelling: 'nedtælling', jul: 'jul', 'to-kroner': '2 kr. billigere' };
   const godkendteNavne = cfg.godkendt.map((t) => NAVN_SMAA[t]).join(', ');
   const tilstand = cfg.tilstand === 'kladde' && godkendteNavne
     ? `Godkendt og lægges ud: ${godkendteNavne}. Resten er kladde.`
@@ -75,9 +96,10 @@ module.exports = async (req, res) => {
   const opslagStatus = live('podcast') ? '<p class="ok">Godkendt: lægges ud på podcastens Facebook-side, når der kommer et nyt afsnit.</p>' : '<p class="kl">Ikke godkendt: kun kladde.</p>';
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   return res.status(200).send(`<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Facebook – kladde</title>
-<style>body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f1ea;color:#1d2a3a}main{max-width:1100px;margin:0 auto;padding:24px 16px}h1{font-size:26px}h2{font-size:20px;margin-top:36px}.tilstand{display:inline-block;background:#1D3557;color:#fff;padding:6px 12px;border-radius:6px}.uge{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}.kort{background:#fff;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;font-size:14px}.kort img{width:100%;border-radius:4px}.st{color:#2a6b3a}.ok{color:#2a6b3a;font-weight:bold}.kl{color:#8a5a00}.opslag{display:flex;flex-wrap:wrap;gap:16px;background:#fff;border-radius:8px;padding:16px}.opslag img{width:320px;max-width:100%;border-radius:4px}.opslag pre{white-space:pre-wrap;font-family:inherit;flex:1 1 300px;margin:0}table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}td{padding:8px;border-bottom:1px solid #eee;vertical-align:top}</style></head>
+<style>body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f1ea;color:#1d2a3a}main{max-width:1100px;margin:0 auto;padding:24px 16px}h1{font-size:26px}h2{font-size:20px;margin-top:36px}.tilstand{display:inline-block;background:#1D3557;color:#fff;padding:6px 12px;border-radius:6px}.uge{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}.kort{background:#fff;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;font-size:14px}.kort img{width:100%;border-radius:4px}.nye{display:flex;flex-direction:column;gap:12px}.raekke{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.st{color:#2a6b3a}.ok{color:#2a6b3a;font-weight:bold}.kl{color:#8a5a00}.opslag{display:flex;flex-wrap:wrap;gap:16px;background:#fff;border-radius:8px;padding:16px}.opslag img{width:320px;max-width:100%;border-radius:4px}.opslag pre{white-space:pre-wrap;font-family:inherit;flex:1 1 300px;margin:0}table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}td{padding:8px;border-bottom:1px solid #eee;vertical-align:top}</style></head>
 <body><main><h1>Facebook: opslag og stories</h1><p class="tilstand">${esc(tilstand)}</p>
-<h2>Stories på Facebook og Instagram de næste 7 dage (kl. 9)</h2><div class="uge">${uge.join('')}</div>
+<h2>Stories på Facebook og Instagram de næste 7 dage (kl. 9 og kl. 19)</h2><div class="uge">${uge.join('')}</div>
+<h2>Nye formater til godkendelse</h2><p>Udkast. De bruges først, når du har godkendt dem.</p><div class="nye">${nye}</div>
 <h2>El-stories: »Nu er det nu« og »Den seneste uge«</h2><p>Lægges kun ud, når de er godkendt (el-nu og el-uge i FACEBOOK_GODKENDT).</p><div class="uge">${elKort.join('')}</div>
 <h2>Sådan ser opslaget ud, når der kommer et nyt afsnit</h2><p>Eksempel med det seneste afsnit.</p>${opslagStatus}${opslag}
 <h2>Log</h2>${log ? `<table>${log}</table>` : '<p>Intet endnu.</p>'}</main></body></html>`);

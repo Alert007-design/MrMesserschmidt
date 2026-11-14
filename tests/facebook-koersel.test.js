@@ -108,26 +108,53 @@ describe('podcastopslag', () => {
   });
 });
 
-describe('daglige stories', () => {
-  it('lægges kun kl. 9', async () => {
-    const i = ind({ nu: MANDAG_KL_10 });
-    await k.koer(i);
-    expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(0);
+
+// Ugeplan fra 15/11-2026: kl. 9 priser (benzin man/ons/fre/søn, el tir/tor/lør), kl. 19 podcast (man/ons/fre/søn) eller Mortens aften (tir/tor/lør).
+const MANDAG_KL_19 = new Date('2026-11-02T18:00:00Z');
+const TIRSDAG_KL_19 = new Date('2026-11-17T18:00:00Z');
+const MED_EL = async () => ({ vest: {}, oest: {} });
+
+describe('daglige stories kl. 9 og kl. 19', () => {
+  it('lægges kun kl. 9 og kl. 19', async () => {
+    for (const nu of [MANDAG_KL_10, new Date('2026-11-02T17:00:00Z'), new Date('2026-11-02T19:00:00Z')]) {
+      const i = ind({ nu });
+      await k.koer(i);
+      expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(0);
+    }
   });
 
-  it('mandag kl. 9: podcaststory på politikersiden med dagens billede', async () => {
+  it('mandag kl. 9: benzinstory på politikersiden med dagens billede', async () => {
     const i = ind({ nu: MANDAG_KL_9 });
     await k.koer(i);
     const s = i.meta.kald.filter((x) => x.type === 'story');
-    expect(s).toEqual([{ type: 'story', side: 'POL', billede: 'https://mrmesserschmidt.dk/facebook/billede/podcast/2026-11-02.png' }]);
-    expect(i.status.stories['2026-11-02']).toMatchObject({ type: 'podcast', resultat: 'lagt' });
+    expect(s).toEqual([{ type: 'story', side: 'POL', billede: 'https://mrmesserschmidt.dk/facebook/billede/benzin/2026-11-02.png' }]);
+    expect(i.status.stories['2026-11-02']).toMatchObject({ type: 'benzin', resultat: 'lagt' });
+  });
+
+  it('mandag kl. 19: podcaststory, gemt for sig selv', async () => {
+    const i = ind({ nu: MANDAG_KL_19 });
+    await k.koer(i);
+    expect(i.meta.kald.filter((x) => x.type === 'story')).toEqual([{ type: 'story', side: 'POL', billede: 'https://mrmesserschmidt.dk/facebook/billede/podcast/2026-11-02.png' }]);
+    expect(i.status.stories['2026-11-02:aften']).toMatchObject({ type: 'podcast', resultat: 'lagt' });
+    expect(i.status.stories['2026-11-02']).toBeUndefined();
+  });
+
+  it('tirsdag kl. 9 el og kl. 19 Mortens aften: to stories samme dag', async () => {
+    const i = ind({ nu: new Date('2026-11-17T08:00:00Z'), hentEl: MED_EL });
+    await k.koer(i);
+    i.nu = TIRSDAG_KL_19;
+    await k.koer(i);
+    const b = i.meta.kald.filter((x) => x.type === 'story').map((x) => x.billede);
+    expect(b).toEqual([
+      'https://mrmesserschmidt.dk/facebook/billede/el/2026-11-17.png',
+      'https://mrmesserschmidt.dk/facebook/billede/mortensaften/2026-11-17.png',
+    ]);
   });
 
   it('samme story går også på Instagram, som JPEG', async () => {
-    const i = ind({ nu: MANDAG_KL_9 });
+    const i = ind({ nu: MANDAG_KL_19 });
     await k.koer(i);
     expect(i.meta.kald.filter((x) => x.type === 'igstory')).toEqual([{ type: 'igstory', konto: 'IG', billede: 'https://mrmesserschmidt.dk/facebook/billede/podcast/2026-11-02.jpg' }]);
-    expect(i.status.stories['2026-11-02'].instagram).toMatchObject({ resultat: 'lagt' });
   });
 
   it('uden Instagram-konto lægges kun på Facebook', async () => {
@@ -138,46 +165,53 @@ describe('daglige stories', () => {
     expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'lagt', instagram: { resultat: 'ikke_opsat' } });
   });
 
-  it('fejler Facebook, prøves Instagram stadig, og omvendt', async () => {
+  it('fejler Facebook, prøves Instagram stadig', async () => {
     const i = ind({ nu: MANDAG_KL_9 });
     i.meta.story = async () => { throw new MetaFejl('nej', 'rettighed'); };
     await k.koer(i);
     expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'fejl', instagram: { resultat: 'lagt' } });
   });
 
-  it('aldrig to stories samme dag', async () => {
+  it('aldrig samme story to gange', async () => {
     const i = ind({ nu: MANDAG_KL_9 });
     await k.koer(i);
     await k.koer(i);
+    i.nu = MANDAG_KL_19;
+    await k.koer(i);
+    await k.koer(i);
+    expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(2);
+  });
+
+  it('uden benzinpriser springes morgenen over, men aftenens story kommer', async () => {
+    const i = ind({ nu: MANDAG_KL_9, hentBenzin: async () => null });
+    await k.koer(i);
+    expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(0);
+    expect(i.status.stories['2026-11-02']).toMatchObject({ type: 'benzin', resultat: 'sprunget_over' });
+    i.nu = MANDAG_KL_19;
+    await k.koer(i);
     expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(1);
   });
 
-  it('tirsdag uden benzinpriser springes over', async () => {
-    const i = ind({ nu: TIRSDAG_KL_9, hentBenzin: async () => null });
+  it('uden elpriser springes tirsdag morgen over', async () => {
+    const i = ind({ nu: new Date('2026-11-03T08:00:00Z'), hentEl: async () => null });
     await k.koer(i);
     expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(0);
-    expect(i.status.stories['2026-11-03']).toMatchObject({ type: 'benzin', resultat: 'sprunget_over' });
-  });
-
-  it('tirsdag med priser: benzinstory', async () => {
-    const i = ind({ nu: TIRSDAG_KL_9 });
-    await k.koer(i);
-    expect(i.meta.kald.find((x) => x.type === 'story').billede).toContain('/benzin/2026-11-03');
+    expect(i.status.stories['2026-11-03']).toMatchObject({ type: 'el', resultat: 'sprunget_over' });
   });
 
   it('kladde: storyen logges, men sendes ikke', async () => {
-    const i = ind({ nu: MANDAG_KL_9, tilstand: 'kladde' });
+    const i = ind({ nu: MANDAG_KL_19, tilstand: 'kladde' });
     await k.koer(i);
     expect(i.meta.kald).toHaveLength(0);
-    expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'kladde' });
+    expect(i.status.stories['2026-11-02:aften']).toMatchObject({ resultat: 'kladde' });
   });
 
-  it('fejl hos Meta logges og prøves ikke igen samme dag', async () => {
-    const i = ind({ nu: MANDAG_KL_9, meta: falskMeta(new MetaFejl('nej', 'rettighed')) });
+  it('fejl hos Meta logges og prøves ikke igen samme aften', async () => {
+    const i = ind({ nu: MANDAG_KL_19, meta: falskMeta(new MetaFejl('nej', 'rettighed')) });
     await k.koer(i);
     await k.koer(i);
     expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(1);
-    expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'fejl', art: 'rettighed' });
+    expect(i.status.stories['2026-11-02:aften']).toMatchObject({ resultat: 'fejl', art: 'rettighed' });
   });
 
   it('loggen holdes kort', async () => {
@@ -197,10 +231,10 @@ describe('godkendelse pr. type', () => {
   };
 
   it('godkendt podcast: storyen lægges ud på Facebook, men ikke på Instagram', async () => {
-    const i = medGodkendt(['podcast'], { nu: MANDAG_KL_9 });
+    const i = medGodkendt(['podcast'], { nu: MANDAG_KL_19 });
     await k.koer(i);
     expect(i.meta.kald.map((x) => x.type)).toEqual(['story']);
-    expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'lagt', instagram: { resultat: 'kladde' } });
+    expect(i.status.stories['2026-11-02:aften']).toMatchObject({ resultat: 'lagt', instagram: { resultat: 'kladde' } });
   });
 
   it('godkendt podcast: opslag om nyt afsnit lægges ud', async () => {
@@ -209,28 +243,28 @@ describe('godkendelse pr. type', () => {
     expect(i.meta.kald).toEqual([expect.objectContaining({ type: 'opslag', side: 'POD' })]);
   });
 
-  it('benzin er ikke godkendt: tirsdagens story bliver kladde', async () => {
-    const i = medGodkendt(['podcast'], { nu: TIRSDAG_KL_9 });
+  it('benzin er ikke godkendt: mandagens morgenstory bliver kladde', async () => {
+    const i = medGodkendt(['podcast'], { nu: MANDAG_KL_9 });
     await k.koer(i);
     expect(i.meta.kald).toHaveLength(0);
-    expect(i.status.stories['2026-11-03']).toMatchObject({ type: 'benzin', resultat: 'kladde' });
+    expect(i.status.stories['2026-11-02']).toMatchObject({ type: 'benzin', resultat: 'kladde' });
   });
 
-  it('Mortens aften er ikke godkendt: søndagens story bliver kladde', async () => {
-    const i = medGodkendt(['podcast'], { nu: new Date('2026-11-08T08:00:00Z') });
+  it('Mortens aften er ikke godkendt: tirsdagens aftenstory bliver kladde', async () => {
+    const i = medGodkendt(['podcast'], { nu: new Date('2026-11-10T18:00:00Z') });
     await k.koer(i);
     expect(i.meta.kald).toHaveLength(0);
-    expect(i.status.stories['2026-11-08']).toMatchObject({ type: 'mortensaften', resultat: 'kladde' });
+    expect(i.status.stories['2026-11-10:aften']).toMatchObject({ type: 'mortensaften', resultat: 'kladde' });
   });
 
   it('slukket slår også godkendte typer fra', async () => {
-    const i = medGodkendt(['podcast'], { tilstand: 'fra', nu: MANDAG_KL_9 });
+    const i = medGodkendt(['podcast'], { tilstand: 'fra', nu: MANDAG_KL_19 });
     await k.koer(i);
     expect(i.meta.kald).toHaveLength(0);
   });
 
   it('instagram godkendt sammen med podcast: begge får storyen', async () => {
-    const i = medGodkendt(['podcast', 'instagram'], { nu: MANDAG_KL_9 });
+    const i = medGodkendt(['podcast', 'instagram'], { nu: MANDAG_KL_19 });
     await k.koer(i);
     expect(i.meta.kald.map((x) => x.type)).toEqual(['story', 'igstory']);
   });
@@ -239,12 +273,12 @@ describe('godkendelse pr. type', () => {
 describe('dagens kladde-story lægges op, når typen godkendes samme dag', () => {
   const kladdeIDag = (over = {}) => {
     const i = ind({ tilstand: 'kladde', ...over });
-    i.cfg = { ...i.cfg, godkendt: ['podcast'] };
-    i.status.stories = { '2026-11-02': { type: 'podcast', resultat: 'kladde' } };
+    i.cfg = { ...i.cfg, godkendt: ['benzin'] };
+    i.status.stories = { '2026-11-02': { type: 'benzin', resultat: 'kladde' } };
     return i;
   };
 
-  it('kl. 10 lægges dagens podcast-story op, og kun én gang', async () => {
+  it('kl. 10 lægges morgenens story op, og kun én gang', async () => {
     const i = kladdeIDag({ nu: MANDAG_KL_10 });
     await k.koer(i);
     await k.koer(i);
@@ -252,10 +286,23 @@ describe('dagens kladde-story lægges op, når typen godkendes samme dag', () =>
     expect(i.status.stories['2026-11-02']).toMatchObject({ resultat: 'lagt' });
   });
 
-  it('efter kl. 20 lægges intet op', async () => {
-    const i = kladdeIDag({ nu: new Date('2026-11-02T20:00:00Z') });
+  it('efter kl. 18 indhentes morgenens story ikke', async () => {
+    const i = kladdeIDag({ nu: new Date('2026-11-02T17:00:00Z') });
     await k.koer(i);
     expect(i.meta.kald).toHaveLength(0);
+  });
+
+  it('aftenens kladde indhentes frem til kl. 22', async () => {
+    const i = ind({ tilstand: 'kladde', nu: new Date('2026-11-02T20:00:00Z') });
+    i.cfg = { ...i.cfg, godkendt: ['podcast'] };
+    i.status.stories = { '2026-11-02:aften': { type: 'podcast', resultat: 'kladde' } };
+    await k.koer(i);
+    expect(i.status.stories['2026-11-02:aften']).toMatchObject({ resultat: 'lagt' });
+    const sent = ind({ tilstand: 'kladde', nu: new Date('2026-11-02T22:00:00Z') });
+    sent.cfg = { ...sent.cfg, godkendt: ['podcast'] };
+    sent.status.stories = { '2026-11-02:aften': { type: 'podcast', resultat: 'kladde' } };
+    await k.koer(sent);
+    expect(sent.meta.kald).toHaveLength(0);
   });
 
   it('en ikke-godkendt type indhentes ikke', async () => {
@@ -266,27 +313,29 @@ describe('dagens kladde-story lægges op, når typen godkendes samme dag', () =>
   });
 });
 
-describe('elpris-story lørdag', () => {
-  const LOERDAG_KL_9 = new Date('2026-11-07T08:00:00Z');
-  it('uden elpriser springes lørdagen over', async () => {
-    const i = ind({ nu: LOERDAG_KL_9, hentEl: async () => null });
+describe('1. december: 2 kroner billigere', () => {
+  const DEC1_KL_9 = new Date('2026-12-01T08:00:00Z');
+
+  it('godkendt: dagens morgenstory er 2-kroners-storyen', async () => {
+    const i = ind({ nu: DEC1_KL_9, hentEl: MED_EL });
+    i.cfg = { ...i.cfg, godkendt: ['to-kroner'] };
     await k.koer(i);
-    expect(i.meta.kald.filter((x) => x.type === 'story')).toHaveLength(0);
-    expect(i.status.stories['2026-11-07']).toMatchObject({ type: 'el', resultat: 'sprunget_over' });
+    expect(i.meta.kald.find((x) => x.type === 'story').billede).toContain('/to-kroner/2026-12-01');
+    expect(i.status.stories['2026-12-01']).toMatchObject({ type: 'to-kroner', resultat: 'lagt' });
   });
 
-  it('med elpriser og godkendt: el-storyen lægges ud', async () => {
-    const i = ind({ nu: LOERDAG_KL_9, tilstand: 'kladde', hentEl: async () => ({ vest: {}, oest: {} }) });
-    i.cfg = { ...i.cfg, godkendt: ['el'] };
+  it('ikke godkendt, også når alt andet er live: dagens almindelige elstory i stedet', async () => {
+    const i = ind({ nu: DEC1_KL_9, hentEl: MED_EL });
+    i.cfg = { ...i.cfg, godkendt: [] };
     await k.koer(i);
-    expect(i.meta.kald.find((x) => x.type === 'story').billede).toContain('/el/2026-11-07');
+    expect(i.meta.kald.find((x) => x.type === 'story').billede).toContain('/el/2026-12-01');
+    expect(i.status.log.find((l) => l.hvad === 'story')).toMatchObject({ type: 'el', erstatter: 'to-kroner' });
   });
 
-  it('el er ikke godkendt: kun kladde', async () => {
-    const i = ind({ nu: LOERDAG_KL_9, tilstand: 'kladde', hentEl: async () => ({ vest: {}, oest: {} }) });
-    i.cfg = { ...i.cfg, godkendt: ['podcast'] };
+  it('2-kroners-storyen kræver ingen priser', async () => {
+    const i = ind({ nu: DEC1_KL_9, hentEl: async () => null });
+    i.cfg = { ...i.cfg, godkendt: ['to-kroner'] };
     await k.koer(i);
-    expect(i.meta.kald).toHaveLength(0);
-    expect(i.status.stories['2026-11-07']).toMatchObject({ type: 'el', resultat: 'kladde' });
+    expect(i.status.stories['2026-12-01']).toMatchObject({ type: 'to-kroner', resultat: 'lagt' });
   });
 });
