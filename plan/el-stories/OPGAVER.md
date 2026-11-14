@@ -4,4 +4,4 @@
 - [x] 4. Kørsel hvert kvarter og egen status
 - [x] 5. Kladdesiden viser de nye stories
 - [x] 6. Tests og lint
-- [ ] 7. Morten godkender billederne (FACEBOOK_GODKENDT)
+- [x] 7. Morten godkender billederne (FACEBOOK_GODKENDT)
