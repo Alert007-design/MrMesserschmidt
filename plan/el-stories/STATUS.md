@@ -1,3 +1,3 @@
-Færdigt: opgave 1-6 (117/117 tests, lint), flettet 14/11-2026. Intet lægges ud før godkendelse.
-I gang: opgave 7 – Morten ser billederne på kladdesiden og tilføjer el-nu,el-uge til FACEBOOK_GODKENDT.
-Mangler: første rigtige story kontrolleres; derefter slettes plan/el-stories/.
+Færdigt: opgave 1-7. Morten godkendte begge stories 14/11-2026; el-nu og el-uge er sat i FACEBOOK_GODKENDT.
+I gang: første rigtige story (el-nu 15/11, el-uge søndag 15/11 kl. 19) kontrolleres.
+Mangler: sletning af plan/el-stories/, når første story er set.
