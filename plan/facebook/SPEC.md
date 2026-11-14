@@ -8,12 +8,17 @@ Godkendt af Morten 1. november 2026 (chat). Ingen persondata indgår.
 - Første kørsel markerer alle eksisterende afsnit som set. Der lægges aldrig gamle afsnit op.
 - Højst ét podcastopslag pr. kørsel.
 
-## Stories på politikersiden (Morten Messerschmidt), kl. 9 dansk tid
-- Mandag, onsdag, fredag: seneste podcastafsnit, billede og »mrmesserschmidt.dk/podcast«.
-- Tirsdag, lørdag: dagens laveste benzin- og dieselpris fra DFpriser (lukket adresse med fælles nøgle) og »dfpriser.dk«. Mangler tallene, springes dagen over.
-- Torsdag, søndag: Mortens aften, billede af Morten og »mortensaften.dk«. Først fra MORTENSAFTEN_FRA (standard 2026-11-06).
-- Billederne laves automatisk i 1080×1920.
-- Højst én story pr. dag.
+## Stories på politikersiden (Morten Messerschmidt), kl. 9 og kl. 19 dansk tid (fra 15/11-2026)
+- Kl. 9, priser: benzin mandag, onsdag, fredag og søndag; el tirsdag, torsdag og lørdag. Mangler tallene, springes storyen over.
+- Kl. 19, indhold: seneste podcastafsnit mandag, onsdag, fredag og søndag; Mortens aften tirsdag, torsdag og lørdag (først fra MORTENSAFTEN_FRA).
+- El-storyen »Den seneste uge« er flyttet til kl. 20 (søndag Vest, onsdag Øst). »Nu er det nu« er uændret.
+- Godkendt i chatten 14/11-2026 og lægges ud uden ny godkendelse: podcast, benzin, el, mortensaften (plan.GODKENDT_I_CHAT).
+- Nye formater lægges kun ud, når de står på listen over godkendte, også når resten er live:
+  - nedtaelling: guldbånd på benzin og el kl. 9 frem til 30. november (»Om 15 dage …«, »I morgen …«).
+  - jul: guldramme og snefnug på podcast, benzin, el og Mortens aften i hele december.
+  - to-kroner: særlig story 1. december kl. 9. Ikke godkendt: dagens almindelige elstory i stedet.
+- Kladdesiden viser de nye formater som udkast (billed-adressen med ?udkast=1).
+- Billederne laves automatisk i 1080×1920. Højst én story pr. tidspunkt pr. dag.
 
 ## Sikkerhed
 - FACEBOOK_TILSTAND: `fra` (intet sker), `kladde` (intet lægges ud, men alt vises på den lukkede kladdeside), `live`.
