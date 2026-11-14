@@ -4,13 +4,15 @@
 const { tegn, hentFoto } = require('../lib/facebook/billede');
 const { miljoe, hentAfsnitMedBilleder, hentBenzin, hentEl } = require('../lib/facebook/kilder');
 const plan = require('../lib/facebook/plan');
+const elStories = require('../lib/facebook/el-stories');
+const { hentElData } = require('../lib/facebook/kilder');
 
 module.exports = async (req, res) => {
   const q = req.query || {};
   const type = String(q.type || '');
   const dato = String(q.dato || '');
   const format = q.format === 'jpg' ? 'jpg' : 'png';
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dato) || !['podcast', 'benzin', 'el', 'mortensaften'].includes(type)) return res.status(404).send('Findes ikke');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dato) || !['podcast', 'benzin', 'el', 'mortensaften', 'el-nu', 'el-uge'].includes(type)) return res.status(404).send('Findes ikke');
   const cfg = miljoe();
   const nu = new Date();
 
@@ -35,6 +37,22 @@ module.exports = async (req, res) => {
       const tal = await hentEl(cfg, nu);
       if (!tal) return res.status(503).send('Ingen elpriser fra DFelpriser');
       png = await tegn('el', { ...tal, dato: idag }, format);
+    } else if (type === 'el-nu' || type === 'el-uge') {
+      // Altid dagens tal. En kommende dag (op til en uge frem) vises som udkast på kladdesiden.
+      const idag = plan.kbh(nu).dato;
+      const dage = (Date.parse(`${dato}T00:00:00Z`) - Date.parse(`${idag}T00:00:00Z`)) / 86400000;
+      if (dage < 0 || dage > 7) return res.status(404).send('Kun dagens priser');
+      const d = await hentElData(cfg, nu);
+      if (!d) return res.status(503).send('Ingen elpriser fra DFelpriser');
+      if (type === 'el-nu') {
+        if (!d.idag || !d.idag.DK2 || !d.idag.DK2.billigste) return res.status(503).send('Ingen periode i dag');
+        png = await tegn('el-nu', elStories.nuIndhold(d), format);
+      } else {
+        // Søndag Vestdanmark, ellers Østdanmark (onsdag).
+        const omr = new Date(`${dato}T12:00:00Z`).getUTCDay() === 0 ? 'DK1' : 'DK2';
+        if (!d.uge || !d.uge[omr] || d.uge[omr].gnsForskelOere == null) return res.status(503).send('Ingen ugetal');
+        png = await tegn('el-uge', elStories.ugeIndhold(d, omr), format);
+      }
     } else {
       const fil = plan.mortensaftenBillede(new Date(`${dato}T10:00:00Z`));
       png = await tegn('mortensaften', { foto: await hentFoto(`${cfg.mortensaftenUrl}/billeder/web/${fil}`), liggende: plan.LIGGENDE.includes(fil) }, format);
