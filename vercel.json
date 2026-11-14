@@ -33,10 +33,17 @@
     {
       "path": "/api/facebook",
       "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/facebook-el",
+      "schedule": "*/15 * * * *"
     }
   ],
   "functions": {
     "api/facebook.js": {
+      "maxDuration": 60
+    },
+    "api/facebook-el.js": {
       "maxDuration": 60
     },
     "api/facebook-billede.js": {

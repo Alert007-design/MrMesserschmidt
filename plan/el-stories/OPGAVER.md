@@ -1,0 +1,7 @@
+- [x] 1. Tests
+- [x] 2. Tidspunkter og tekster (lib/facebook/el-stories.js)
+- [x] 3. Billeder
+- [x] 4. Kørsel hvert kvarter og egen status
+- [x] 5. Kladdesiden viser de nye stories
+- [x] 6. Tests og lint
+- [ ] 7. Morten godkender billederne (FACEBOOK_GODKENDT)
