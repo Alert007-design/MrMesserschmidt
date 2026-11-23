@@ -26,12 +26,11 @@ describe('2-kroners-storyen 1. december', () => {
 });
 
 describe('juleudgaver', () => {
-  it('alle fire faste formater kan tegnes med julepynt og ser anderledes ud end til hverdag', async () => {
+  it('de faste formater kan tegnes med julepynt og ser anderledes ud end til hverdag', async () => {
     const sager = [
       ['podcast', { foto: null, gaest: 'Gæst', emne: 'Emne' }],
       ['benzin', { ...benzin, dato: '2026-12-02' }],
       ['el', { ...el, dato: '2026-12-03' }],
-      ['mortensaften', { foto: null, liggende: false }],
     ];
     for (const [type, data] of sager) {
       const jul = await tegn(type, { ...data, jul: true });
@@ -55,10 +54,26 @@ describe('hvornår de nye formater bruges', async () => {
     expect(variantFor('benzin', '2026-12-01', ['nedtaelling'], false)).toEqual({});
   });
   it('godkendt jul: kun i december', () => {
-    expect(variantFor('mortensaften', '2026-12-08', ['jul'], false)).toEqual({ jul: true });
-    expect(variantFor('mortensaften', '2026-11-28', ['jul'], false)).toEqual({});
+    expect(variantFor('benzin', '2026-12-08', ['jul'], false)).toEqual({ jul: true });
+    expect(variantFor('benzin', '2026-11-28', ['jul'], false)).toEqual({});
+  });
+  it('Mortens aften-juleavisen har sin egen julegrafik og får ikke den ekstra julepynt', () => {
+    expect(variantFor('mortensaften', '2026-12-08', ['jul'], false)).toEqual({});
   });
   it('udkast viser de nye formater uden godkendelse', () => {
     expect(variantFor('benzin', '2026-11-16', [], true)).toEqual({ nedtaelling: { dage: 15 } });
   });
+});
+
+describe('Mortens aften som juleavis (Morten 23/11-2026)', () => {
+  it('begge udgaver tegnes i story-format, også uden fotos', async () => {
+    for (const variant of ['avis', 'prisskilt']) {
+      expect(stoerrelse(await tegn('mortensaften', { variant, foto1: null, foto2: null }))).toEqual([1080, 1920]);
+    }
+  }, 60000);
+  it('de to udgaver ser forskellige ud', async () => {
+    const a = await tegn('mortensaften', { variant: 'avis', foto1: null, foto2: null });
+    const b = await tegn('mortensaften', { variant: 'prisskilt', foto1: null, foto2: null });
+    expect(Buffer.compare(a, b)).not.toBe(0);
+  }, 60000);
 });
