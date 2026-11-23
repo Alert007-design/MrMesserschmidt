@@ -134,6 +134,19 @@ describe('godkendte typer fra Vercel', () => {
   it('billedet, Morten har fjernet fra mortensaften.dk, bruges ikke', () => {
     expect(p.MORTENSAFTEN_BILLEDER).not.toContain('hat-hund-terrasse.jpg');
   });
+
+  it('billederne, Morten har forbudt 23/11-2026, bruges aldrig', () => {
+    const forbudte = ['flambering-koekken.jpg', 'pasta-roedvin-sol.jpg', 'smoking-jul.jpg'];
+    expect(p.FORBUDTE_BILLEDER).toEqual(expect.arrayContaining(forbudte));
+    const brugte = [...p.MORTENSAFTEN_BILLEDER, ...Object.values(p.JULEAVIS_BILLEDER).flat()];
+    for (const f of forbudte) expect(brugte).not.toContain(f);
+  });
+
+  it('juleavisen skifter mellem de to udgaver fra story til story', () => {
+    const v = ['2026-11-24', '2026-11-26', '2026-11-28', '2026-12-01'].map((d) => p.mortensaftenVariant(kl(d, 18)));
+    for (let i = 1; i < v.length; i++) expect(v[i]).not.toBe(v[i - 1]);
+    for (const x of v) expect(['avis', 'prisskilt']).toContain(x);
+  });
 });
 
 describe('benzinfotos', () => {

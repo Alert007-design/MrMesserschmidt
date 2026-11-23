@@ -10,7 +10,7 @@ const { hentElData } = require('../lib/facebook/kilder');
 function variantFor(type, dato, godkendt, udkast) {
   const ok = (navn) => udkast || godkendt.includes(navn);
   const v = {};
-  if (plan.erJul(dato) && ['podcast', 'benzin', 'el', 'mortensaften', 'to-kroner'].includes(type) && ok('jul')) v.jul = true;
+  if (plan.erJul(dato) && ['podcast', 'benzin', 'el', 'to-kroner'].includes(type) && ok('jul')) v.jul = true;
   const dage = plan.dageTilToKroner(dato);
   if ((type === 'benzin' || type === 'el') && dage && ok('nedtaelling')) v.nedtaelling = { dage };
   return v;
@@ -71,8 +71,10 @@ module.exports = async (req, res) => {
         png = await tegn('el-uge', elStories.ugeIndhold(d, omr), format);
       }
     } else {
-      const fil = plan.mortensaftenBillede(new Date(`${dato}T10:00:00Z`));
-      png = await tegn('mortensaften', { foto: await hentFoto(`${cfg.mortensaftenUrl}/billeder/web/${fil}`), liggende: plan.LIGGENDE.includes(fil), ...variant }, format);
+      const variantNavn = plan.mortensaftenVariant(new Date(`${dato}T10:00:00Z`));
+      const filer = plan.JULEAVIS_BILLEDER[variantNavn].filter((f) => !plan.FORBUDTE_BILLEDER.includes(f));
+      const [foto1, foto2] = await Promise.all(filer.map((f) => hentFoto(`${cfg.mortensaftenUrl}/billeder/web/${f}`)));
+      png = await tegn('mortensaften', { variant: variantNavn, foto1: foto1 || null, foto2: foto2 || null }, format);
     }
     res.setHeader('Content-Type', format === 'jpg' ? 'image/jpeg' : 'image/png');
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=600');
