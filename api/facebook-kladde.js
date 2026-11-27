@@ -9,7 +9,7 @@ const plan = require('../lib/facebook/plan');
 const { esc } = require('../lib/podcast');
 const { datoTekst } = require('../lib/facebook/billede');
 
-const NAVNE = { podcast: 'Podcast', benzin: 'Benzinpriser', el: 'Elpriser', mortensaften: 'Mortens aften', 'el-nu': 'El: Nu er det nu', 'el-uge': 'El: Den seneste uge', 'to-kroner': '2 kr. billigere fra i dag' };
+const NAVNE = { podcast: 'Podcast', benzin: 'Benzinpriser', el: 'Elpriser', mortensaften: 'Mortens aften', 'el-nu': 'El: Nu er det nu', 'el-uge': 'El: Den seneste uge', 'to-kroner': '2 kr. billigere fra i dag', youtube: 'YouTube: ugens video' };
 const RESULTAT = {
   lagt: 'Lagt ud', kladde: 'Kladde (ikke lagt ud)', fejl: 'Fejlede', sprunget_over: 'Sprunget over', start: 'Startet', ikke_opsat: 'Ikke sat op',
 };
@@ -46,12 +46,17 @@ module.exports = async (req, res) => {
         type = plan.reserveType(d);
         note = '<i>2-kroners-storyen er ikke godkendt endnu, så dagens almindelige story kommer i stedet.</i>';
       }
+      if (type === 'youtube' && !cfg.godkendt.includes('youtube')) {
+        note = '<i>YouTube-storyen er ikke godkendt endnu, så elstoryen kommer i stedet. Billedet herunder er udkastet.</i>';
+      } else if (type === 'youtube') {
+        note = '<i>Lægges kun ud, hvis der er en ny video (højst 7 dage gammel). Ellers kommer elstoryen.</i>';
+      }
       const n = slot === 'morgen' ? dato : `${dato}:aften`;
       const gjort = status && status.stories && status.stories[n];
       const udkastPriser = (type === 'benzin' || type === 'el') && i > 0;
-      const billede = type ? cfg.billedUrl(type, dato) : '';
+      const billede = type ? (type === 'youtube' ? `${cfg.billedUrl(type, dato)}?udkast=1` : cfg.billedUrl(type, dato)) : '';
       const kl = `kl. ${plan.TIDER[slot]}`;
-      const godkendt = type ? ((type === 'to-kroner' ? cfg.godkendt.includes(type) : live(type)) ? `<span class="ok">Godkendt: lægges ud ${kl}</span>` : '<span class="kl">Ikke godkendt: kun kladde</span>') : '';
+      const godkendt = type ? ((type === 'to-kroner' || type === 'youtube' ? cfg.godkendt.includes(type) : live(type)) ? `<span class="ok">Godkendt: lægges ud ${kl}</span>` : '<span class="kl">Ikke godkendt: kun kladde</span>') : '';
       uge.push(`<div class="kort"><b>${esc(datoTekst(dato))} ${kl}</b><span>${type ? esc(NAVNE[type]) : 'Ingen story'}</span>${gjort ? ud(gjort) : godkendt}${note}${billede ? `<a href="${esc(billede)}"><img src="${esc(billede)}" alt="" loading="lazy"></a>` : ''}${udkastPriser ? '<i>Udkast med dagens priser. Den dag bruges dagens tal.</i>' : ''}</div>`);
     }
   }
@@ -88,7 +93,7 @@ module.exports = async (req, res) => {
 
   const log = [...((status && status.log) || []), ...((elStatus && elStatus.log) || [])].sort((x, y) => String(y.tid).localeCompare(String(x.tid))).slice(0, 80).map((l) => `<tr><td>${esc(new Date(l.tid).toLocaleString('da-DK', { timeZone: 'Europe/Copenhagen' }))}</td><td>${esc(l.hvad === 'story' ? `Facebook-story: ${NAVNE[l.type] || l.type}` : l.hvad === 'instagramstory' ? `Instagram-story: ${NAVNE[l.type] || l.type}` : l.hvad === 'podcastopslag' ? `Opslag: ${l.afsnit || ''}` : l.hvad)}</td><td>${esc(RESULTAT[l.resultat] || l.resultat)}${l.besked ? `<br><small>${esc(l.besked)}</small>` : ''}</td></tr>`).join('');
 
-  const NAVN_SMAA = { podcast: 'podcast', benzin: 'benzinpriser', el: 'elpriser', mortensaften: 'Mortens aften', instagram: 'Instagram', 'el-nu': 'el: nu er det nu', 'el-uge': 'el: den seneste uge', nedtaelling: 'nedtælling', jul: 'jul', 'to-kroner': '2 kr. billigere' };
+  const NAVN_SMAA = { podcast: 'podcast', benzin: 'benzinpriser', el: 'elpriser', mortensaften: 'Mortens aften', instagram: 'Instagram', 'el-nu': 'el: nu er det nu', 'el-uge': 'el: den seneste uge', nedtaelling: 'nedtælling', jul: 'jul', 'to-kroner': '2 kr. billigere', youtube: 'YouTube' };
   const godkendteNavne = cfg.godkendt.map((t) => NAVN_SMAA[t]).join(', ');
   const tilstand = cfg.tilstand === 'kladde' && godkendteNavne
     ? `Godkendt og lægges ud: ${godkendteNavne}. Resten er kladde.`

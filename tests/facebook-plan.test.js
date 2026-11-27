@@ -23,8 +23,11 @@ describe('ugeplan for stories (fra 15/11-2026)', () => {
   it('kl. 9: benzin mandag, onsdag, fredag og søndag', () => {
     for (const d of ['2026-11-16', '2026-11-18', '2026-11-20', '2026-11-22']) expect(p.storyType(kl(d, 8), fra)).toBe('benzin');
   });
-  it('kl. 9: el tirsdag, torsdag og lørdag', () => {
-    for (const d of ['2026-11-17', '2026-11-19', '2026-11-21']) expect(p.storyType(kl(d, 8), fra)).toBe('el');
+  it('kl. 9: el torsdag', () => {
+    expect(p.storyType(kl('2026-11-19', 8), fra)).toBe('el');
+  });
+  it('kl. 9: YouTube tirsdag og lørdag (fra 27/11-2026)', () => {
+    for (const d of ['2026-11-17', '2026-11-21']) expect(p.storyType(kl(d, 8), fra)).toBe('youtube');
   });
   it('kl. 19: podcast mandag, onsdag, fredag og søndag', () => {
     for (const d of ['2026-11-16', '2026-11-18', '2026-11-20', '2026-11-22']) expect(p.storyType(kl19(d), fra, 'aften')).toBe('podcast');
