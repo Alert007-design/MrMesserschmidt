@@ -1,8 +1,8 @@
-// /facebook/billede/<type>/<dato>.png: story-billedet til dagens story (podcast, benzin, el, mortensaften, el-nu, el-uge eller to-kroner).
+// /facebook/billede/<type>/<dato>.png: story-billedet til dagens story (podcast, benzin, el, mortensaften, el-nu, el-uge, to-kroner eller youtube).
 // Offentligt, fordi Meta selv henter billedet. Indeholder kun oplysninger, der i forvejen er offentlige.
 
 const { tegn, hentFoto } = require('../lib/facebook/billede');
-const { miljoe, hentAfsnitMedBilleder, hentBenzin, hentEl } = require('../lib/facebook/kilder');
+const { miljoe, hentAfsnitMedBilleder, hentBenzin, hentEl, hentVideo } = require('../lib/facebook/kilder');
 const plan = require('../lib/facebook/plan');
 const elStories = require('../lib/facebook/el-stories');
 const { hentElData } = require('../lib/facebook/kilder');
@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
   const type = String(q.type || '');
   const dato = String(q.dato || '');
   const format = q.format === 'jpg' ? 'jpg' : 'png';
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dato) || !['podcast', 'benzin', 'el', 'mortensaften', 'el-nu', 'el-uge', 'to-kroner'].includes(type)) return res.status(404).send('Findes ikke');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dato) || !['podcast', 'benzin', 'el', 'mortensaften', 'el-nu', 'el-uge', 'to-kroner', 'youtube'].includes(type)) return res.status(404).send('Findes ikke');
   const cfg = miljoe();
   const nu = new Date();
   // Nye formater (nedtælling, jul, 2-kroners-storyen) bruges kun, når Morten har godkendt dem.
@@ -35,6 +35,15 @@ module.exports = async (req, res) => {
     if (type === 'podcast') {
       const a = (await hentAfsnitMedBilleder())[0];
       png = await tegn('podcast', { foto: await hentFoto(a.billede), gaest: a.gaest, emne: a.emne, ...variant }, format);
+    } else if (type === 'youtube') {
+      // Altid den nyeste video. Til kladdesiden (?udkast=1) vises den nyeste, også hvis den er over 7 dage gammel.
+      const idag = plan.kbh(nu).dato;
+      const dage = (Date.parse(`${dato}T00:00:00Z`) - Date.parse(`${idag}T00:00:00Z`)) / 86400000;
+      if (dage < 0 || dage > maksDage) return res.status(404).send('Kun den nyeste video');
+      const v = await hentVideo(cfg, nu, { ignorerAlder: udkast });
+      if (!v) return res.status(503).send('Ingen ny video fra YouTube');
+      const foto = (await hentFoto(v.billede)) || (await hentFoto(v.billedeReserve));
+      png = await tegn('youtube', { foto, titel: v.titel, ...variant }, format);
     } else if (type === 'to-kroner') {
       if (dato !== plan.TO_KRONER_DATO && !udkast) return res.status(404).send('Findes ikke');
       png = await tegn('to-kroner', { ...variant }, format);
